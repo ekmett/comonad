@@ -9,8 +9,8 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://comonad.com/reader/
 copyright:     Copyright (C) 2008-2011 Edward A. Kmett, Copyright (C) 2004-2008 Dave Menendez
-synopsis:      A canonical Comonad implementation
-description:   A canonical Comonad implementation
+synopsis:      Haskell 98 comonads
+description:   Haskell 98 comonads
 build-type:    Simple
 
 library
@@ -19,7 +19,6 @@ library
     transformers >= 0.2.2 && < 0.3
 
   exposed-modules:
-    Control.Comonad,
-    Control.Comonad.Stream
+    Control.Comonad
 
-  ghc-options:      -Wall 
+  ghc-options: -Wall 
