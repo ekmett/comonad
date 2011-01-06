@@ -57,7 +57,7 @@ infixl 1 =>>
 infixr 1 <<=, =<=, =>= 
 infixl 4 <.>, <., .>, <..>
 
-{-|
+{- |
 There are two ways to define a comonad:
 
 I. Provide definitions for 'extract' and 'extend'
@@ -96,15 +96,20 @@ In that case you must also satisfy these laws:
 > fmap f    = extend (f . extract)
 
 These are the default definitions of 'extend' and'duplicate' and 
-the 'default' definition of 'liftW' respectively.
+the definition of 'liftW' respectively.
+
 -}
 
 class Functor w => Comonad w where
-  -- | aka coreturn
+  -- | 
+  -- > extract . fmap f = f . extract
   extract:: w a -> a
-  -- | aka cojoin
+  -- | 
+  -- > duplicate = extend id
+  -- > fmap (fmap f) . duplicate = duplicate . fmap f
   duplicate :: w a -> w (w a)
-  -- | aka cobind
+  -- |
+  -- > extend f  = fmap f . duplicate
   extend :: (w a -> b) -> w a -> w b
 
   extend f = fmap f . duplicate
@@ -112,6 +117,8 @@ class Functor w => Comonad w where
 
 -- | A suitable default definition for 'fmap' for a 'Comonad'. 
 -- Promotes a function to a comonad.
+--
+-- > fmap f    = extend (f . extract)
 liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
@@ -145,11 +152,13 @@ wfix :: Comonad w => w (w a -> a) -> a
 wfix w = extract w (extend wfix w)
 
 -- * Comonads for Prelude types:
-
--- Instances: While Control.Comonad.Instances would be more symmetric with the definition of
--- Control.Monad.Instances in base, the reason the latter exists is because of Haskell 98 specifying
--- the types Either a, ((,)m) and ((->)e) and the class Monad without having the foresight to require 
--- or allow instances between them. Here Haskell 98 says nothing about Comonads, so we can include the 
+--
+-- Instances: While Control.Comonad.Instances would be more symmetric
+-- with the definition of Control.Monad.Instances in base, the reason
+-- the latter exists is because of Haskell 98 specifying the types
+-- @'Either' a@, @((,)m)@ and @((->)e)@ and the class Monad without
+-- having the foresight to require or allow instances between them.
+-- Here Haskell 98 says nothing about Comonads, so we can include the
 -- instances directly avoiding the wart of orphan instances.
 
 instance Comonad ((,)e) where
@@ -161,7 +170,7 @@ instance Monoid m => Comonad ((->)m) where
   duplicate f m = f . mappend m
 
 -- * Comonads for types from 'transformers'.
-
+--
 -- This isn't really a transformer, so i have no compunction about including the instance here.
 -- TODO: Petition to move Data.Functor.Identity into base
 instance Comonad Identity where
