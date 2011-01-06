@@ -16,8 +16,6 @@ module Control.Comonad
   -- * Functor and Comonad
     Functor(..)
   , Comonad(..)
-  , ComonadZip(..)
-  , Cokleisli(..)
   -- * Functions
 
   -- ** Naming conventions
@@ -28,7 +26,6 @@ module Control.Comonad
   , (=<=)   -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
   , (=>>)   -- :: Comonad w => w a -> (w a -> b) -> w b
   , (<<=)   -- :: Comonad w => (w a -> b) -> w a -> w b
-  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
 
   -- * Fixed points and folds
   , wfix    -- :: Comonad w => w (w a -> a) -> a
@@ -36,10 +33,15 @@ module Control.Comonad
 
   -- ** Comonadic lifting 
   , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
+
+  -- * Comonads with Zipping
+  , ComonadZip(..)
+  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
   , liftW2  -- :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
   , liftW3  -- :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-  , wzip    -- :: ComonadZip w => w a -> w b -> w (a, b)
 
+  -- * Cokleisli Arrows
+  , Cokleisli(..)
   ) where
 
 import Prelude hiding (id, (.))
@@ -57,37 +59,51 @@ infixl 4 <.>, <., .>, <..>
 {-|
 There are two ways to define a comonad:
 
-I. Provide definitions for 'fmap', 'extract', and 'duplicate'
+I. Provide definitions for 'extract' and 'extend'
 satisfying these laws:
 
-> extract . duplicate      == id
-> fmap extract . duplicate == id
-> duplicate . duplicate    == fmap duplicate . duplicate
+> extend extract      = id
+> extract . extend f  = f
+> extend f . extend g = extend (f . extend g)
 
-II. Provide definitions for 'extract' and 'extend'
-satisfying these laws:
+In this case, you may simply set 'fmap' = 'liftW'.
 
-> extend extract      == id
-> extract . extend f  == f
-> extend f . extend g == extend (f . extend g)
+These laws are directly analogous to the laws for monads
+and perhaps can be made clearer by viewing them as laws stating
+that Cokleisli composition must be associative, and has extract for
+a unit:
 
-('fmap' cannot be defaulted, but a comonad which defines
-'extend' may simply set 'fmap' equal to 'liftW'.)
+> f =>= extract   = f
+> extract =>= f   = f
+> (f =>= g) =>= h = f =>= (g =>= h)
 
-A comonad providing definitions for 'extend' /and/ 'duplicate',
-must also satisfy these laws:
+II. Alternately, you may choose to provide definitions for 'fmap',
+'extract', and 'duplicate' satisfying these laws:
 
-> extend f  == fmap f . duplicate
-> duplicate == extend id
-> fmap f    == extend (f . extract)
+> extract . duplicate      = id
+> fmap extract . duplicate = id
+> duplicate . duplicate    = fmap duplicate . duplicate
 
-(The first two are the defaults for 'extend' and 'duplicate',
-and the third is the definition of 'liftW'.)
+In this case you may not rely on the ability to define 'fmap' in 
+terms of 'liftW'.
+
+You may of course, choose to define both 'duplicate' /and/ 'extend'. 
+In that case you must also satisfy these laws:
+
+> extend f  = fmap f . duplicate
+> duplicate = extend id
+> fmap f    = extend (f . extract)
+
+These are the default definitions of 'extend' and'duplicate' and 
+the 'default' definition of 'liftW' respectively.
 -}
 
 class Functor w => Comonad w where
+  -- | aka coreturn
   extract:: w a -> a
+  -- | aka cojoin
   duplicate :: w a -> w (w a)
+  -- | aka cobind
   extend :: (w a -> b) -> w a -> w b
 
   extend f = fmap f . duplicate
@@ -162,68 +178,49 @@ instance Comonad w => Comonad (IdentityT w) where
 
 As a symmetric semi-monoidal comonad, an instance of ComonadZip is required to satisfy:
 
-> extract (wzip a b) = (extract a, extract b)
-
-By extension, the following law must also hold:
-
 > extract (a <.> b) = extract a (extract b)
 
-Minimum definition: '<.>'
+Minimal definition: '<.>'
 
-Based on the ComonadZip from "The Essence of Dataflow Programming" 
-by Tarmo Uustalu and Varmo Vene, but adapted to fit the conventions of 
-Control.Monad and to provide a similar programming style to 
-that of Control.Applicative. 
+Based on the ComonadZip from \"The Essence of Dataflow Programming\" 
+by Tarmo Uustalu and Varmo Vene, but adapted to fit the programming style of
+Control.Applicative. 
 
 -}
 class Comonad w => ComonadZip w where
-  -- | 
-  -- > (<.>) = liftW2 id
   (<.>) :: w (a -> b) -> w a -> w b
-
-  -- |
-  -- > (.>) = liftW2 (const id)
   (.>) :: w a -> w b -> w b
-  (.>) = liftW2 (const id)
-
-  -- |
-  -- > (<.) = liftW2 const
   (<.) :: w a -> w b -> w a
-  (<.) = liftW2 const
+
+  a .> b = const id <$> a <*> b
+  a <. b = const    <$> a <*> b
   
 instance Monoid m => ComonadZip ((,)m) where
-  ~(m, a) <.> ~(n, b) = (m `mappend` n, a b)
+  (<.>) = (<*>)
 
 instance Monoid m => ComonadZip ((->)m) where
-  g <.> h = \m -> (g m) (h m)
+  (<.>) = (<*>)
 
 instance ComonadZip Identity where
-  Identity a <.> Identity b = Identity (a b)
+  (<.>) = (<*>)
 
 instance ComonadZip w => ComonadZip (IdentityT w) where
   IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
 
+-- | A variant of '<.>' with the arguments reversed.
 (<..>) :: ComonadZip w => w a -> w (a -> b) -> w b
 (<..>) = liftW2 (flip ($))
 {-# INLINE (<..>) #-}
 
--- |
--- > wzip wa wb = (,) <$> wa <.> wb
--- > wzip = liftW2 (,) 
--- 
--- Called 'czip' in "Essence of Dataflow Programming"
-wzip :: ComonadZip w => w a -> w b -> w (a, b)
-wzip = liftW2 (,)
-{-# INLINE wzip #-}
-
+-- | Lift a binary function into a comonad with zipping
 liftW2 :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
 liftW2 f a b = f <$> a <.> b
 {-# INLINE liftW2 #-}
 
+-- | Lift a ternary function into a comonad with zipping
 liftW3 :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftW3 f a b c = f <$> a <.> b <.> c
 {-# INLINE liftW3 #-}
-
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
@@ -265,8 +262,8 @@ on those of Control.Monad.
   The monad type constructor @w@ is added to function results
   (modulo currying) and nowhere else.  So, for example, 
 
->  filter  ::                (a ->   Bool) -> [a] ->   [a]
->  filterW :: (Comonad w) => (w a -> Bool) -> w [a] -> [a]
+>  filter  ::              (a ->   Bool) -> [a] ->   [a]
+>  filterW :: Comonad w => (w a -> Bool) -> w [a] -> [a]
 
 * A prefix \'@w@\' generalizes an existing function to a comonadic form.
   Thus, for example: 
@@ -274,6 +271,7 @@ on those of Control.Monad.
 >  fix  :: (a -> a) -> a
 >  wfix :: w (w a -> a) -> a
 
-When ambiguous, consistency with existing Control.Monad combinators supercedes other naming considerations.
+When ambiguous, consistency with existing Control.Monad combinator naming 
+supercedes these rules (e.g. 'liftW')
 
 -}
