@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
--- Copyright   :  (C) 2008-2011 Edward Kmett
---      (C) 2004 Dave Menendez
+-- Copyright   :  (C) 2008-2011 Edward Kmett,
+--                (C) 2004 Dave Menendez
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -13,7 +13,7 @@
 ----------------------------------------------------------------------------
 module Control.Comonad
   ( 
-  -- * Functor and Comonad classes
+  -- * Functor and Comonad
     Functor(..)
   , Comonad(..)
   -- * Functions
@@ -26,20 +26,34 @@ module Control.Comonad
   , (=<=)   -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
   , (=>>)   -- :: Comonad w => w a -> (w a -> b) -> w b
   , (<<=)   -- :: Comonad w => (w a -> b) -> w a -> w b
-  , (.>>)   -- :: Comonad w => w a -> b -> w b
-  , (<<.)   -- :: Comonad w => b -> w a -> w b
-  , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix    -- :: Comonad w => w (w a -> a) -> a
   , unfoldW -- :: Comonad w => (w b -> (a,b)) -> w b -> [a]
+
+  -- ** Comonads with Zipping
+  , ComonadZip(..)
+
+  -- ** Comonadic lifting 
+  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
+  , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
+  , liftW2  -- :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
+  , liftW3  -- :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+  , wzip    -- :: ComonadZip w => w a -> w b -> w (a, b)
+
+  -- ** Cokleisli Arrows 
+  , Cokleisli(..)
   ) where
 
-import Data.Monoid
+import Prelude hiding (id, (.))
+import Control.Arrow
+import Control.Category
 import Data.Functor
+import Data.Monoid
 import Data.Functor.Identity
 import Control.Monad.Trans.Identity
 
-infixl 1 =>>, .>>
-infixr 1 <<=, <<., =<=, =>= 
+infixl 1 =>> 
+infixr 1 <<=, =<=, =>= 
+infixl 4 <.>, <., .>, <..>
 
 {-|
 There are two ways to define a comonad:
@@ -96,16 +110,6 @@ liftW f = extend (f . extract)
 (<<=) = extend
 {-# INLINE (<<=) #-}
 
--- | '<$' with precedence compatible with <<= and =<=
-(<<.) :: Comonad w => b -> w a -> w b
-(<<.) = (<$)
-{-# INLINE (<<.) #-}
-
--- | flipped '<$' with precedence compatible with '=>>'
-(.>>) :: Comonad w => w a -> b -> w b
-wa .>> b = b <$ wa
-{-# INLINE (.>>) #-}
-
 -- | Right-to-left coKleisli composition 
 (=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
 f =<= g = f . extend g
@@ -155,6 +159,103 @@ instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
 
+{- | 
+
+As a symmetric semi-monoidal comonad, an instance of ComonadZip is required to satisfy:
+
+> extract (wzip a b) = (extract a, extract b)
+
+By extension, the following law must also hold:
+
+> extract (a <.> b) = extract a (extract b)
+
+Minimum definition: '<.>'
+
+Based on the ComonadZip from "The Essence of Dataflow Programming" 
+by Tarmo Uustalu and Varmo Vene, but adapted to fit the conventions of 
+Control.Monad and to provide a similar programming style to 
+that of Control.Applicative. 
+
+-}
+class Comonad w => ComonadZip w where
+  -- | 
+  -- > (<.>) = liftW2 id
+  (<.>) :: w (a -> b) -> w a -> w b
+
+  -- |
+  -- > (.>) = liftW2 (const id)
+  (.>) :: w a -> w b -> w b
+  (.>) = liftW2 (const id)
+
+  -- |
+  -- > (<.) = liftW2 const
+  (<.) :: w a -> w b -> w a
+  (<.) = liftW2 const
+  
+instance Monoid m => ComonadZip ((,)m) where
+  ~(m, a) <.> ~(n, b) = (m `mappend` n, a b)
+
+instance Monoid m => ComonadZip ((->)m) where
+  g <.> h = \m -> (g m) (h m)
+
+instance ComonadZip Identity where
+  Identity a <.> Identity b = Identity (a b)
+
+instance ComonadZip w => ComonadZip (IdentityT w) where
+  IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
+
+(<..>) :: ComonadZip w => w a -> w (a -> b) -> w b
+(<..>) = liftW2 (flip ($))
+{-# INLINE (<..>) #-}
+
+-- |
+-- > wzip wa wb = (,) <$> wa <.> wb
+-- > wzip = liftW2 (,) 
+-- 
+-- Called 'czip' in "Essence of Dataflow Programming"
+wzip :: ComonadZip w => w a -> w b -> w (a, b)
+wzip = liftW2 (,)
+{-# INLINE wzip #-}
+
+liftW2 :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
+liftW2 f a b = f <$> a <.> b
+{-# INLINE liftW2 #-}
+
+liftW3 :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+liftW3 f a b c = f <$> a <.> b <.> c
+{-# INLINE liftW3 #-}
+
+
+-- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
+newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
+
+instance Comonad w => Arrow (Cokleisli w) where
+  arr f = Cokleisli (f . extract)
+  first f = f *** id
+  second f = id *** f
+  Cokleisli f *** Cokleisli g = Cokleisli (f . fmap fst &&& g . fmap snd)
+  Cokleisli f &&& Cokleisli g = Cokleisli (f &&& g)
+
+instance Comonad w => Category (Cokleisli w) where
+  id = Cokleisli extract
+  Cokleisli f . Cokleisli g = Cokleisli (f =<= g)
+
+instance Comonad w => ArrowApply (Cokleisli w) where
+  app = Cokleisli $ \w -> runCokleisli (fst (extract w)) (snd <$> w)
+
+instance Comonad w => ArrowChoice (Cokleisli w) where
+  left = leftApp
+
+instance ComonadZip d => ArrowLoop (Cokleisli d) where
+  loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where 
+    f' wa = f . wzip wa . fmap snd
+
+instance Functor (Cokleisli w a) where
+  fmap f (Cokleisli g) = Cokleisli (f . g)
+
+instance Monad (Cokleisli w a) where
+  return a = Cokleisli (const a)
+  Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
 
 {- $naming
 
