@@ -12,13 +12,30 @@
 -- A 'Comonad' is the categorical dual of a 'Monad'.
 ----------------------------------------------------------------------------
 module Control.Comonad
-  ( Comonad(..)
-  , liftW
-  , (=>>), (>>.)
-  , (<<=), (.<<)
-  , liftCtx
-  , unfoldW
-  , wfix
+  ( 
+  -- * Functor and Comonad classes
+    Functor(..)
+  , Comonad(..)
+  -- * Functions
+  
+  -- ** CoKleisli composition
+  , (=>=) -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+  , (=<=) -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+
+  , (=>>) -- :: Comonad w => w a -> (w a -> b) -> w b
+  , (<<=) -- :: Comonad w => (w a -> b) -> w a -> w b
+
+  , (>>.) -- :: Comonad w => w a -> b -> w b
+  , (.<<) -- :: Comonad w => b -> w a -> w b
+
+  , liftCtx -- :: Comonad w => (a -> b) -> w a -> b
+  , unfoldW -- :: Comonad w => (w b -> (a,b)) -> w b -> [a]
+
+  -- * Comonadic fixed points
+  , wfix -- :: Comonad w => w (w a -> a) -> a
+
+  -- ** Comonadic lifting operators
+  , liftW -- :: Comonad w => (a -> b) -> w a -> w b
   ) where
 
 import Data.Monoid
@@ -27,7 +44,7 @@ import Data.Functor.Identity
 import Control.Monad.Trans.Identity
 
 infixl 1 =>>, >>.
-infixr 1 <<=, .<<
+infixr 1 <<=, .<<, =<=, =>= 
 
 {-|
 There are two ways to define a comonad:
@@ -78,27 +95,41 @@ liftW f = extend (f . extract)
 (=>>) = flip extend
 {-# INLINE (=>>) #-}
 
+-- | 'extend' in operator form 
 (<<=) :: Comonad w => (w a -> b) -> w a -> w b
 (<<=) = extend
 {-# INLINE (<<=) #-}
 
+-- | '<$' with precedence compatible with <<= and =<= 
 (.<<) :: Comonad w => b -> w a -> w b
 (.<<) = (<$)
 {-# INLINE (.<<) #-}
 
+-- | flipped '<$' with precedence compatible with '=>>'
 (>>.) :: Comonad w => w a -> b -> w b
 wa >>. b = b <$ wa
 {-# INLINE (>>.) #-}
+
+-- | Right-to-left coKleisli composition 
+(=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+f =<= g = f . extend g
+{-# INLINE (=<=) #-}
+
+-- | Left-to-right CoKleisli composition
+(=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+f =>= g = g . extend f 
+{-# INLINE (=>=) #-}
 
 -- | Transform a function into a comonadic action
 liftCtx :: Comonad w => (a -> b) -> w a -> b
 liftCtx f = extract . fmap f
 {-# INLINE liftCtx #-}
 
+-- | A generalized (comonadic) list anamorphism
 unfoldW :: Comonad w => (w b -> (a,b)) -> w b -> [a]
 unfoldW f w = fst (f w) : unfoldW f (w =>> snd . f)
 
--- comonadic fixed point
+-- | Comonadic fixed point
 wfix :: Comonad w => w (w a -> a) -> a
 wfix w = extract w (extend wfix w)
 
