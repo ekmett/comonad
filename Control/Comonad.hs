@@ -45,12 +45,13 @@ module Control.Comonad
   ) where
 
 import Prelude hiding (id, (.))
+import Control.Applicative
 import Control.Arrow
 import Control.Category
-import Data.Functor
-import Data.Monoid
-import Data.Functor.Identity
 import Control.Monad.Trans.Identity
+import Data.Functor
+import Data.Functor.Identity
+import Data.Monoid
 
 infixl 1 =>> 
 infixr 1 <<=, =<=, =>= 
@@ -192,8 +193,8 @@ class Comonad w => ComonadZip w where
   (.>) :: w a -> w b -> w b
   (<.) :: w a -> w b -> w a
 
-  a .> b = const id <$> a <*> b
-  a <. b = const    <$> a <*> b
+  a .> b = const id <$> a <.> b
+  a <. b = const    <$> a <.> b
   
 instance Monoid m => ComonadZip ((,)m) where
   (<.>) = (<*>)
@@ -209,7 +210,7 @@ instance ComonadZip w => ComonadZip (IdentityT w) where
 
 -- | A variant of '<.>' with the arguments reversed.
 (<..>) :: ComonadZip w => w a -> w (a -> b) -> w b
-(<..>) = liftW2 (flip ($))
+(<..>) = liftW2 (flip id)
 {-# INLINE (<..>) #-}
 
 -- | Lift a binary function into a comonad with zipping
@@ -244,7 +245,7 @@ instance Comonad w => ArrowChoice (Cokleisli w) where
 
 instance ComonadZip d => ArrowLoop (Cokleisli d) where
   loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where 
-    f' wa = f . wzip wa . fmap snd
+    f' wa wb = f ((,) <$> wa <.> (snd <$> wb))
 
 instance Functor (Cokleisli w a) where
   fmap f (Cokleisli g) = Cokleisli (f . g)
