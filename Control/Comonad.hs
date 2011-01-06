@@ -17,25 +17,20 @@ module Control.Comonad
     Functor(..)
   , Comonad(..)
   -- * Functions
-  
-  -- ** CoKleisli composition
-  , (=>=) -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-  , (=<=) -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
 
-  , (=>>) -- :: Comonad w => w a -> (w a -> b) -> w b
-  , (<<=) -- :: Comonad w => (w a -> b) -> w a -> w b
+  -- ** Naming conventions
+  -- $naming
 
-  , (>>.) -- :: Comonad w => w a -> b -> w b
-  , (.<<) -- :: Comonad w => b -> w a -> w b
-
-  , liftCtx -- :: Comonad w => (a -> b) -> w a -> b
+  -- ** Operators
+  , (=>=)   -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+  , (=<=)   -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+  , (=>>)   -- :: Comonad w => w a -> (w a -> b) -> w b
+  , (<<=)   -- :: Comonad w => (w a -> b) -> w a -> w b
+  , (.>>)   -- :: Comonad w => w a -> b -> w b
+  , (<<.)   -- :: Comonad w => b -> w a -> w b
+  , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
+  , wfix    -- :: Comonad w => w (w a -> a) -> a
   , unfoldW -- :: Comonad w => (w b -> (a,b)) -> w b -> [a]
-
-  -- * Comonadic fixed points
-  , wfix -- :: Comonad w => w (w a -> a) -> a
-
-  -- ** Comonadic lifting operators
-  , liftW -- :: Comonad w => (a -> b) -> w a -> w b
   ) where
 
 import Data.Monoid
@@ -43,8 +38,8 @@ import Data.Functor
 import Data.Functor.Identity
 import Control.Monad.Trans.Identity
 
-infixl 1 =>>, >>.
-infixr 1 <<=, .<<, =<=, =>= 
+infixl 1 =>>, .>>
+infixr 1 <<=, <<., =<=, =>= 
 
 {-|
 There are two ways to define a comonad:
@@ -85,7 +80,8 @@ class Functor w => Comonad w where
   extend f = fmap f . duplicate
   duplicate = extend id
 
--- | A suitable default definition for 'fmap' for a 'Comonad'.
+-- | A suitable default definition for 'fmap' for a 'Comonad'. 
+-- Promotes a function to a comonad.
 liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
@@ -100,15 +96,15 @@ liftW f = extend (f . extract)
 (<<=) = extend
 {-# INLINE (<<=) #-}
 
--- | '<$' with precedence compatible with <<= and =<= 
-(.<<) :: Comonad w => b -> w a -> w b
-(.<<) = (<$)
-{-# INLINE (.<<) #-}
+-- | '<$' with precedence compatible with <<= and =<=
+(<<.) :: Comonad w => b -> w a -> w b
+(<<.) = (<$)
+{-# INLINE (<<.) #-}
 
 -- | flipped '<$' with precedence compatible with '=>>'
-(>>.) :: Comonad w => w a -> b -> w b
-wa >>. b = b <$ wa
-{-# INLINE (>>.) #-}
+(.>>) :: Comonad w => w a -> b -> w b
+wa .>> b = b <$ wa
+{-# INLINE (.>>) #-}
 
 -- | Right-to-left coKleisli composition 
 (=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
@@ -119,11 +115,6 @@ f =<= g = f . extend g
 (=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
 f =>= g = g . extend f 
 {-# INLINE (=>=) #-}
-
--- | Transform a function into a comonadic action
-liftCtx :: Comonad w => (a -> b) -> w a -> b
-liftCtx f = extract . fmap f
-{-# INLINE liftCtx #-}
 
 -- | A generalized (comonadic) list anamorphism
 unfoldW :: Comonad w => (w b -> (a,b)) -> w b -> [a]
@@ -163,3 +154,26 @@ instance Comonad Identity where
 instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
+
+
+{- $naming
+
+The functions in this library use the following naming conventions, based
+on those of Control.Monad.
+
+* A postfix \'@W@\' always stands for a function in the Co-Kleisli category:
+  The monad type constructor @w@ is added to function results
+  (modulo currying) and nowhere else.  So, for example, 
+
+>  filter  ::                (a ->   Bool) -> [a] ->   [a]
+>  filterW :: (Comonad w) => (w a -> Bool) -> w [a] -> [a]
+
+* A prefix \'@w@\' generalizes an existing function to a comonadic form.
+  Thus, for example: 
+
+>  fix  :: (a -> a) -> a
+>  wfix :: w (w a -> a) -> a
+
+When ambiguous, consistency with existing Control.Monad combinators supercedes other naming considerations.
+
+-}

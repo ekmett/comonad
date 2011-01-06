@@ -19,6 +19,8 @@ library
     transformers >= 0.2.2 && < 0.3
 
   exposed-modules:
-    Control.Comonad
+    Control.Comonad,
+    Control.Comonad.Zip,
+    Control.Arrow.Cokleisli
 
   ghc-options: -Wall 
