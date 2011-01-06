@@ -15,8 +15,8 @@ build-type:    Simple
 
 library
   build-depends: 
-    base > 4,
-    transformers >= 0.2.2 && < 0.3
+    base > 4 && < 4.3,
+    transformers >= 0.2.0 && < 0.3
 
   exposed-modules:
     Control.Comonad

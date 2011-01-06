@@ -16,6 +16,8 @@ module Control.Comonad
   -- * Functor and Comonad
     Functor(..)
   , Comonad(..)
+  , ComonadZip(..)
+  , Cokleisli(..)
   -- * Functions
 
   -- ** Naming conventions
@@ -26,21 +28,18 @@ module Control.Comonad
   , (=<=)   -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
   , (=>>)   -- :: Comonad w => w a -> (w a -> b) -> w b
   , (<<=)   -- :: Comonad w => (w a -> b) -> w a -> w b
+  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
+
+  -- * Fixed points and folds
   , wfix    -- :: Comonad w => w (w a -> a) -> a
   , unfoldW -- :: Comonad w => (w b -> (a,b)) -> w b -> [a]
 
-  -- ** Comonads with Zipping
-  , ComonadZip(..)
-
   -- ** Comonadic lifting 
-  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
   , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
   , liftW2  -- :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
   , liftW3  -- :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
   , wzip    -- :: ComonadZip w => w a -> w b -> w (a, b)
 
-  -- ** Cokleisli Arrows 
-  , Cokleisli(..)
   ) where
 
 import Prelude hiding (id, (.))
@@ -110,17 +109,17 @@ liftW f = extend (f . extract)
 (<<=) = extend
 {-# INLINE (<<=) #-}
 
--- | Right-to-left coKleisli composition 
+-- | Right-to-left Cokleisli composition 
 (=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
 f =<= g = f . extend g
 {-# INLINE (=<=) #-}
 
--- | Left-to-right CoKleisli composition
+-- | Left-to-right Cokleisli composition
 (=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
 f =>= g = g . extend f 
 {-# INLINE (=>=) #-}
 
--- | A generalized (comonadic) list anamorphism
+-- | A generalized comonadic list anamorphism
 unfoldW :: Comonad w => (w b -> (a,b)) -> w b -> [a]
 unfoldW f w = fst (f w) : unfoldW f (w =>> snd . f)
 
@@ -262,7 +261,7 @@ instance Monad (Cokleisli w a) where
 The functions in this library use the following naming conventions, based
 on those of Control.Monad.
 
-* A postfix \'@W@\' always stands for a function in the Co-Kleisli category:
+* A postfix \'@W@\' always stands for a function in the Cokleisli category:
   The monad type constructor @w@ is added to function results
   (modulo currying) and nowhere else.  So, for example, 
 
