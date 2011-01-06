@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
@@ -15,20 +14,20 @@
 module Control.Comonad
   ( Comonad(..)
   , liftW
-  , (=>>)
-  , (.>>)
+  , (=>>), (>>.)
+  , (<<=), (.<<)
   , liftCtx
-  , mapW
-  , parallelW
   , unfoldW
-  , sequenceW
+  , wfix
   ) where
 
 import Data.Monoid
+import Data.Functor
 import Data.Functor.Identity
 import Control.Monad.Trans.Identity
 
-infixl 1 =>>, .>>
+infixl 1 =>>, >>.
+infixr 1 <<=, .<<
 
 {-|
 There are two ways to define a comonad:
@@ -72,44 +71,43 @@ class Functor w => Comonad w where
 -- | A suitable default definition for 'fmap' for a 'Comonad'.
 liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
+{-# INLINE liftW #-}
 
 -- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
 (=>>) :: Comonad w => w a -> (w a -> b) -> w b
 (=>>) = flip extend
+{-# INLINE (=>>) #-}
 
--- | Injects a value into the comonad.
-(.>>) :: Comonad w => w a -> b -> w b
-w .>> b = extend (\_ -> b) w
+(<<=) :: Comonad w => (w a -> b) -> w a -> w b
+(<<=) = extend
+{-# INLINE (<<=) #-}
+
+(.<<) :: Comonad w => b -> w a -> w b
+(.<<) = (<$)
+{-# INLINE (.<<) #-}
+
+(>>.) :: Comonad w => w a -> b -> w b
+wa >>. b = b <$ wa
+{-# INLINE (>>.) #-}
 
 -- | Transform a function into a comonadic action
 liftCtx :: Comonad w => (a -> b) -> w a -> b
 liftCtx f = extract . fmap f
-
-mapW :: Comonad w => (w a -> b) -> w [a] -> [b]
-mapW f w
-  | null (extract w) = []
-  | otherwise        = f (fmap head w) : mapW f (fmap tail w)
-
-parallelW :: Comonad w => w [a] -> [w a]
-parallelW w
-  | null (extract w) = []
-  | otherwise        = fmap head w : parallelW (fmap tail w)
+{-# INLINE liftCtx #-}
 
 unfoldW :: Comonad w => (w b -> (a,b)) -> w b -> [a]
 unfoldW f w = fst (f w) : unfoldW f (w =>> snd . f)
 
--- | Converts a list of comonadic functions into a single function
--- returning a list of values
-sequenceW :: Comonad w => [w a -> b] -> w a -> [b]
-sequenceW []     _ = []
-sequenceW (f:fs) w = f w : sequenceW fs w
+-- comonadic fixed point
+wfix :: Comonad w => w (w a -> a) -> a
+wfix w = extract w (extend wfix w)
 
 -- * Comonads for Prelude types:
 
 -- Instances: While Control.Comonad.Instances would be more symmetric with the definition of
 -- Control.Monad.Instances in base, the reason the latter exists is because of Haskell 98 specifying
--- the types Either a, ((,)m) and ((->)e) AND the class Monad without having the foresight to require 
--- or allow the instances. Here Haskell 98 says nothing about Comonads, so we can include the 
+-- the types Either a, ((,)m) and ((->)e) and the class Monad without having the foresight to require 
+-- or allow instances between them. Here Haskell 98 says nothing about Comonads, so we can include the 
 -- instances directly avoiding the wart of orphan instances.
 
 instance Comonad ((,)e) where
@@ -129,7 +127,8 @@ instance Comonad Identity where
   extend f = Identity . f 
   duplicate = Identity
 
--- Provided to avoid an orphan instance. Not proposed to standardize
+-- Provided to avoid an orphan instance. Not proposed to standardize. 
+-- If Comonad moved to base, consider moving instance into transformers?
 instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
