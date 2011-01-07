@@ -14,7 +14,8 @@
 module Control.Comonad ( 
   -- * Functors
     Functor(..)
-  , ($>)      -- :: Functor f => f a -> b -> f b
+  , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
+  , ( $>)     -- :: Functor f => f a -> b -> f b 
 
   -- * Comonads
   , Comonad(..)
