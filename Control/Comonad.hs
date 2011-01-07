@@ -153,7 +153,7 @@ wfix w = extract w (extend wfix w)
 -- * Comonads for Prelude types:
 --
 -- Instances: While Control.Comonad.Instances would be more symmetric
--- with the definition of Control.Monad.Instances in base, the reason
+-- to the definition of Control.Monad.Instances in base, the reason
 -- the latter exists is because of Haskell 98 specifying the types
 -- @'Either' a@, @((,)m)@ and @((->)e)@ and the class Monad without
 -- having the foresight to require or allow instances between them.
@@ -171,6 +171,7 @@ instance Monoid m => Comonad ((->)m) where
 -- * Comonads for types from 'transformers'.
 --
 -- This isn't really a transformer, so i have no compunction about including the instance here.
+--
 -- TODO: Petition to move Data.Functor.Identity into base
 instance Comonad Identity where
   extract = runIdentity
@@ -251,7 +252,7 @@ instance Arrow a => FunctorApply (WrappedArrow a b) where
   (<. ) = (<* )
   ( .>) = ( *>)
 
--- | Wrap Applicatives to be used as a member of FunctorApply 
+-- | Wrap an 'Applicative' to be used as a member of 'FunctorApply'
 newtype WrappedApplicative f a = WrappedApplicative { unwrapApplicative :: f a } 
 
 instance Functor f => Functor (WrappedApplicative f) where
@@ -268,8 +269,7 @@ instance Applicative f => Applicative (WrappedApplicative f) where
   WrappedApplicative a <*  WrappedApplicative b = WrappedApplicative (a <*  b)
   WrappedApplicative a  *> WrappedApplicative b = WrappedApplicative (a  *> b)
   
--- | Transform a strong lax symmetric semi-monoidal endofunctor into a strong lax symmetric
--- monoidal endofunctor by adding a unit.
+-- | Transform a FunctorApply into an Applicative by adding a unit.
 newtype WrappedApply f a = WrapApply { unwrapApply :: Either (f a) a }
 
 instance Functor f => Functor (WrappedApply f) where
@@ -392,3 +392,4 @@ instance Applicative (Cokleisli w a) where
 instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
+

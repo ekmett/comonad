@@ -16,6 +16,7 @@ build-type:    Simple
 library
   build-depends: 
     base >= 4 && < 4.4,
+    functor-apply >= 0.5 && < 0.6,
     transformers >= 0.2.0 && < 0.3
 
   exposed-modules:
