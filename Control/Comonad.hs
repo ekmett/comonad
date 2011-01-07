@@ -105,14 +105,14 @@ the definition of 'liftW' respectively.
 class Functor w => Comonad w where
   -- | 
   -- > extract . fmap f = f . extract
-  extract:: w a -> a
+  extract   :: w a -> a
   -- | 
   -- > duplicate = extend id
   -- > fmap (fmap f) . duplicate = duplicate . fmap f
   duplicate :: w a -> w (w a)
   -- |
   -- > extend f  = fmap f . duplicate
-  extend :: (w a -> b) -> w a -> w b
+  extend    :: (w a -> b) -> w a -> w b
 
   extend f = fmap f . duplicate
   duplicate = extend id
