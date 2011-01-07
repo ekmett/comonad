@@ -11,37 +11,35 @@
 --
 -- A 'Comonad' is the categorical dual of a 'Monad'.
 ----------------------------------------------------------------------------
-module Control.Comonad
-  ( 
-  -- * Functor and Comonad
+module Control.Comonad ( 
+  -- * Functors
     Functor(..)
+  , ($>)      -- :: Functor f => f a -> b -> f b
+
+  -- * Comonads
   , Comonad(..)
-  -- * Functions
+  , (=>=)     -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+  , (=<=)     -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+  , (=>>)     -- :: Comonad w => w a -> (w a -> b) -> w b
+  , (<<=)     -- :: Comonad w => (w a -> b) -> w a -> w b
+  , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
+  , wfix      -- :: Comonad w => w (w a -> a) -> a
 
-  -- ** Naming conventions
-  -- $naming
+  -- * FunctorApply - strong lax symmetric semimonoidal endofunctors
+  , FunctorApply(..)
+  , (<..>)    -- :: FunctorApply w => w a -> w (a -> b) -> w b
+  , liftF2    -- :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
+  , liftF3    -- :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 
-  -- ** Operators
-  , (=>=)   -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-  , (=<=)   -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
-  , (=>>)   -- :: Comonad w => w a -> (w a -> b) -> w b
-  , (<<=)   -- :: Comonad w => (w a -> b) -> w a -> w b
+  -- * ComonadApply - strong lax symmetric semimonoidal comonads
+  , ComonadApply
+  , liftW2    -- :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
+  , liftW3    -- :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 
-  -- * Fixed points and folds
-  , wfix    -- :: Comonad w => w (w a -> a) -> a
-  , unfoldW -- :: Comonad w => (w b -> (a,b)) -> w b -> [a]
-
-  -- ** Comonadic lifting 
-  , liftW   -- :: Comonad w => (a -> b) -> w a -> w b
-
-  -- * Comonads with Zipping
-  , ComonadZip(..)
-  , (<..>)  -- :: ComonadZip w => w a -> w (a -> b) -> w b
-  , liftW2  -- :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
-  , liftW3  -- :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-
-  -- * Cokleisli Arrows
+  -- * Wrappers
   , Cokleisli(..)
+  , WrappedApplicative(..)
+  , WrappedApply(..)
   ) where
 
 import Prelude hiding (id, (.))
@@ -55,9 +53,13 @@ import Data.Monoid
 
 infixl 1 =>> 
 infixr 1 <<=, =<=, =>= 
-infixl 4 <.>, <., .>, <..>
+infixl 4 <.>, <., .>, <..>, $>
+
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
 
 {- |
+
 There are two ways to define a comonad:
 
 I. Provide definitions for 'extract' and 'extend'
@@ -143,10 +145,6 @@ f =<= g = f . extend g
 f =>= g = g . extend f 
 {-# INLINE (=>=) #-}
 
--- | A generalized comonadic list anamorphism
-unfoldW :: Comonad w => (w b -> (a,b)) -> w b -> [a]
-unfoldW f w = fst (f w) : unfoldW f (w =>> snd . f)
-
 -- | Comonadic fixed point
 wfix :: Comonad w => w (w a -> a) -> a
 wfix w = extract w (extend wfix w)
@@ -184,56 +182,182 @@ instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
 
-{- | 
+-- | A strong lax symmetric semi-monoidal functor.
 
-As a symmetric semi-monoidal comonad, an instance of ComonadZip is required to satisfy:
+class Functor f => FunctorApply f where
+  (<.>) :: f (a -> b) -> f a -> f b
 
-> extract (a <.> b) = extract a (extract b)
-
-Minimal definition: '<.>'
-
-Based on the ComonadZip from \"The Essence of Dataflow Programming\" 
-by Tarmo Uustalu and Varmo Vene, but adapted to fit the programming style of
-Control.Applicative. 
-
--}
-class Comonad w => ComonadZip w where
-  (<.>) :: w (a -> b) -> w a -> w b
-  (.>) :: w a -> w b -> w b
-  (<.) :: w a -> w b -> w a
-
+  -- | a .> b = const id <$> a <.> b
+  (.>) :: f a -> f b -> f b
   a .> b = const id <$> a <.> b
+
+  -- | a <. b = const <$> a <.> b
+  (<.) :: f a -> f b -> f a
   a <. b = const    <$> a <.> b
-  
-instance Monoid m => ComonadZip ((,)m) where
-  (<.>) = (<*>)
 
-instance Monoid m => ComonadZip ((->)m) where
+-- this only requires a Semigroup
+instance Monoid m => FunctorApply ((,)m) where
   (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
 
-instance ComonadZip Identity where
+-- this only requires a Semigroup
+instance Monoid m => FunctorApply ((->)m) where
   (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
 
-instance ComonadZip w => ComonadZip (IdentityT w) where
+instance FunctorApply ZipList where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply [] where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply IO where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply Maybe where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply Identity where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply w => FunctorApply (IdentityT w) where
   IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
 
+instance Monad m => FunctorApply (WrappedMonad m) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance Monoid m => FunctorApply (Const m) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance Arrow a => FunctorApply (WrappedArrow a b) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+-- | Wrap Applicatives to be used as a member of FunctorApply 
+newtype WrappedApplicative f a = WrappedApplicative { unwrapApplicative :: f a } 
+
+instance Functor f => Functor (WrappedApplicative f) where
+  fmap f (WrappedApplicative a) = WrappedApplicative (f <$> a)
+
+instance Applicative f => FunctorApply (WrappedApplicative f) where
+  WrappedApplicative f <.> WrappedApplicative a = WrappedApplicative (f <*> a)
+  WrappedApplicative a <.  WrappedApplicative b = WrappedApplicative (a <*  b)
+  WrappedApplicative a  .> WrappedApplicative b = WrappedApplicative (a  *> b)
+
+instance Applicative f => Applicative (WrappedApplicative f) where
+  pure = WrappedApplicative . pure
+  WrappedApplicative f <*> WrappedApplicative a = WrappedApplicative (f <*> a)
+  WrappedApplicative a <*  WrappedApplicative b = WrappedApplicative (a <*  b)
+  WrappedApplicative a  *> WrappedApplicative b = WrappedApplicative (a  *> b)
+  
+-- | Transform a strong lax symmetric semi-monoidal endofunctor into a strong lax symmetric
+-- monoidal endofunctor by adding a unit.
+newtype WrappedApply f a = WrapApply { unwrapApply :: Either (f a) a }
+
+instance Functor f => Functor (WrappedApply f) where
+  fmap f (WrapApply (Right a)) = WrapApply (Right (f     a ))
+  fmap f (WrapApply (Left fa)) = WrapApply (Left  (f <$> fa))
+
+instance FunctorApply f => FunctorApply (WrappedApply f) where
+  WrapApply (Right f) <.> WrapApply (Right a) = WrapApply (Right (f        a ))
+  WrapApply (Right f) <.> WrapApply (Left fa) = WrapApply (Left  (f    <$> fa))
+  WrapApply (Left ff) <.> WrapApply (Right a) = WrapApply (Left  (($a) <$> ff))
+  WrapApply (Left ff) <.> WrapApply (Left fa) = WrapApply (Left  (ff   <.> fa))
+
+  WrapApply a         <. WrapApply (Right _) = WrapApply a
+  WrapApply (Right a) <. WrapApply (Left fb) = WrapApply (Left (a  <$ fb))
+  WrapApply (Left fa) <. WrapApply (Left fb) = WrapApply (Left (fa <. fb))
+
+  WrapApply (Right _) .> WrapApply b = WrapApply b
+  WrapApply (Left fa) .> WrapApply (Right b) = WrapApply (Left (fa $> b ))
+  WrapApply (Left fa) .> WrapApply (Left fb) = WrapApply (Left (fa .> fb))
+  
+instance FunctorApply f => Applicative (WrappedApply f) where
+  pure a = WrapApply (Right a)
+  (<*>) = (<.>)
+  (<* ) = (<. )
+  ( *>) = ( .>)
+
+instance Comonad f => Comonad (WrappedApply f) where
+  extract (WrapApply (Right a)) = a
+  extract (WrapApply (Left fa)) = extract fa
+  duplicate w@(WrapApply Right{}) = WrapApply (Right w)
+  duplicate (WrapApply (Left fa)) = WrapApply (Left (extend (WrapApply . Left) fa))
+
+instance ComonadApply f => ComonadApply (WrappedApply f)
+  
 -- | A variant of '<.>' with the arguments reversed.
-(<..>) :: ComonadZip w => w a -> w (a -> b) -> w b
-(<..>) = liftW2 (flip id)
+(<..>) :: FunctorApply w => w a -> w (a -> b) -> w b
+(<..>) = liftF2 (flip id)
 {-# INLINE (<..>) #-}
 
 -- | Lift a binary function into a comonad with zipping
-liftW2 :: ComonadZip w => (a -> b -> c) -> w a -> w b -> w c
-liftW2 f a b = f <$> a <.> b
+liftF2 :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
+liftF2 f a b = f <$> a <.> b
+{-# INLINE liftF2 #-}
+
+-- | Lift a ternary function into a comonad with zipping
+liftF3 :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+liftF3 f a b c = f <$> a <.> b <.> c
+{-# INLINE liftF3 #-}
+
+{- | 
+
+A strong lax symmetric semi-monoidal comonad. As such an instance of 
+'ComonadApply' is required to satisfy:
+
+> extract (a <.> b) = extract a (extract b)
+
+This class is based on ComonadZip from \"The Essence of Dataflow Programming\" 
+by Tarmo Uustalu and Varmo Vene, but adapted to fit the programming style of
+Control.Applicative. 'Applicative' can be seen as a similar law over and above 
+FunctorApply that:
+
+> pure (a b) = pure a <.> pure b
+
+-}
+
+class (Comonad w, FunctorApply w) => ComonadApply w
+-- | Only requires a Semigroup, but no such class exists
+instance Monoid m => ComonadApply ((,)m)
+-- | Only requires a Semigroup, but no such class exists
+instance Monoid m => ComonadApply ((->)m)
+instance ComonadApply Identity
+instance ComonadApply w => ComonadApply (IdentityT w)
+
+-- | Lift a binary function into a comonad with zipping
+liftW2 :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
+liftW2 = liftF2
 {-# INLINE liftW2 #-}
 
 -- | Lift a ternary function into a comonad with zipping
-liftW3 :: ComonadZip w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-liftW3 f a b c = f <$> a <.> b <.> c
+liftW3 :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+liftW3 = liftF3
 {-# INLINE liftW3 #-}
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
+
+instance Comonad w => Category (Cokleisli w) where
+  id = Cokleisli extract
+  Cokleisli f . Cokleisli g = Cokleisli (f =<= g)
 
 instance Comonad w => Arrow (Cokleisli w) where
   arr f = Cokleisli (f . extract)
@@ -242,46 +366,28 @@ instance Comonad w => Arrow (Cokleisli w) where
   Cokleisli f *** Cokleisli g = Cokleisli (f . fmap fst &&& g . fmap snd)
   Cokleisli f &&& Cokleisli g = Cokleisli (f &&& g)
 
-instance Comonad w => Category (Cokleisli w) where
-  id = Cokleisli extract
-  Cokleisli f . Cokleisli g = Cokleisli (f =<= g)
-
 instance Comonad w => ArrowApply (Cokleisli w) where
   app = Cokleisli $ \w -> runCokleisli (fst (extract w)) (snd <$> w)
 
 instance Comonad w => ArrowChoice (Cokleisli w) where
   left = leftApp
 
-instance ComonadZip d => ArrowLoop (Cokleisli d) where
+instance ComonadApply w => ArrowLoop (Cokleisli w) where
   loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where 
     f' wa wb = f ((,) <$> wa <.> (snd <$> wb))
+
+-- Cokleisli arrows are actually just a special case of a reader monad:
 
 instance Functor (Cokleisli w a) where
   fmap f (Cokleisli g) = Cokleisli (f . g)
 
+instance FunctorApply (Cokleisli w a) where
+  Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
+
+instance Applicative (Cokleisli w a) where
+  pure = Cokleisli . const
+  Cokleisli f <*> Cokleisli a = Cokleisli (\w -> (f w) (a w))
+
 instance Monad (Cokleisli w a) where
-  return a = Cokleisli (const a)
+  return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
-
-{- $naming
-
-The functions in this library use the following naming conventions, based
-on those of Control.Monad.
-
-* A postfix \'@W@\' always stands for a function in the Cokleisli category:
-  The monad type constructor @w@ is added to function results
-  (modulo currying) and nowhere else.  So, for example, 
-
->  filter  ::              (a ->   Bool) -> [a] ->   [a]
->  filterW :: Comonad w => (w a -> Bool) -> w [a] -> [a]
-
-* A prefix \'@w@\' generalizes an existing function to a comonadic form.
-  Thus, for example: 
-
->  fix  :: (a -> a) -> a
->  wfix :: w (w a -> a) -> a
-
-When ambiguous, consistency with existing Control.Monad combinator naming 
-supercedes these rules (e.g. 'liftW')
-
--}
