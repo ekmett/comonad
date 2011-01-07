@@ -12,24 +12,18 @@
 -- A 'Comonad' is the categorical dual of a 'Monad'.
 ----------------------------------------------------------------------------
 module Control.Comonad ( 
-  -- * FunctorApply
-    module Data.Functor.Apply
   -- * Comonads
-  , Comonad(..)
-  , (=>=)     -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-  , (=<=)     -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+    Comonad(..)
   , (=>>)     -- :: Comonad w => w a -> (w a -> b) -> w b
   , (<<=)     -- :: Comonad w => (w a -> b) -> w a -> w b
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
 
-  -- * ComonadApply - strong lax symmetric semimonoidal comonads
-  , ComonadApply
-  , liftW2    -- :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
-  , liftW3    -- :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-
   -- * Cokleisli Arrows
   , Cokleisli(..)
+  -- ** Cokleisli composition
+  , (=>=)     -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+  , (=<=)     -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
   ) where
 
 import Prelude hiding (id, (.))
@@ -37,7 +31,6 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad.Trans.Identity
-import Data.Functor.Apply
 import Data.Functor.Identity
 import Data.Monoid
 
@@ -169,48 +162,6 @@ instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
 
-instance Comonad f => Comonad (MaybeApply f) where
-  extract (MaybeApply (Right a)) = a
-  extract (MaybeApply (Left fa)) = extract fa
-  duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
-  duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
-
-instance ComonadApply f => ComonadApply (MaybeApply f)
-  
-{- | 
-
-A strong lax symmetric semi-monoidal comonad. As such an instance of 
-'ComonadApply' is required to satisfy:
-
-> extract (a <.> b) = extract a (extract b)
-
-This class is based on ComonadZip from \"The Essence of Dataflow Programming\" 
-by Tarmo Uustalu and Varmo Vene, but adapted to fit the programming style of
-Control.Applicative. 'Applicative' can be seen as a similar law over and above 
-FunctorApply that:
-
-> pure (a b) = pure a <.> pure b
-
--}
-
-class (Comonad w, FunctorApply w) => ComonadApply w
--- | Only requires a Semigroup, but no such class exists
-instance Monoid m => ComonadApply ((,)m)
--- | Only requires a Semigroup, but no such class exists
-instance Monoid m => ComonadApply ((->)m)
-instance ComonadApply Identity
-instance ComonadApply w => ComonadApply (IdentityT w)
-
--- | Lift a binary function into a comonad with zipping
-liftW2 :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
-liftW2 = liftF2
-{-# INLINE liftW2 #-}
-
--- | Lift a ternary function into a comonad with zipping
-liftW3 :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-liftW3 = liftF3
-{-# INLINE liftW3 #-}
-
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 
@@ -231,17 +182,10 @@ instance Comonad w => ArrowApply (Cokleisli w) where
 instance Comonad w => ArrowChoice (Cokleisli w) where
   left = leftApp
 
-instance ComonadApply w => ArrowLoop (Cokleisli w) where
-  loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where 
-    f' wa wb = f ((,) <$> wa <.> (snd <$> wb))
-
 -- Cokleisli arrows are actually just a special case of a reader monad:
 
 instance Functor (Cokleisli w a) where
   fmap f (Cokleisli g) = Cokleisli (f . g)
-
-instance FunctorApply (Cokleisli w a) where
-  Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
 
 instance Applicative (Cokleisli w a) where
   pure = Cokleisli . const
