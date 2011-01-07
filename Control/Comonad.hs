@@ -12,11 +12,8 @@
 -- A 'Comonad' is the categorical dual of a 'Monad'.
 ----------------------------------------------------------------------------
 module Control.Comonad ( 
-  -- * Functors
-    Functor(..)
-  , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
-  , ( $>)     -- :: Functor f => f a -> b -> f b 
-
+  -- * FunctorApply
+    module Data.Functor.Apply
   -- * Comonads
   , Comonad(..)
   , (=>=)     -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
@@ -26,21 +23,13 @@ module Control.Comonad (
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
 
-  -- * FunctorApply - strong lax symmetric semimonoidal endofunctors
-  , FunctorApply(..)
-  , (<..>)    -- :: FunctorApply w => w a -> w (a -> b) -> w b
-  , liftF2    -- :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
-  , liftF3    -- :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-
   -- * ComonadApply - strong lax symmetric semimonoidal comonads
   , ComonadApply
   , liftW2    -- :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
   , liftW3    -- :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 
-  -- * Wrappers
+  -- * Cokleisli Arrows
   , Cokleisli(..)
-  , WrappedApplicative(..)
-  , WrappedApply(..)
   ) where
 
 import Prelude hiding (id, (.))
@@ -48,16 +37,12 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad.Trans.Identity
-import Data.Functor
+import Data.Functor.Apply
 import Data.Functor.Identity
 import Data.Monoid
 
 infixl 1 =>> 
 infixr 1 <<=, =<=, =>= 
-infixl 4 <.>, <., .>, <..>, $>
-
-($>) :: Functor f => f a -> b -> f b
-($>) = flip (<$)
 
 {- |
 
@@ -184,141 +169,14 @@ instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
 
--- | A strong lax symmetric semi-monoidal functor.
+instance Comonad f => Comonad (MaybeApply f) where
+  extract (MaybeApply (Right a)) = a
+  extract (MaybeApply (Left fa)) = extract fa
+  duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
+  duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
 
-class Functor f => FunctorApply f where
-  (<.>) :: f (a -> b) -> f a -> f b
-
-  -- | a .> b = const id <$> a <.> b
-  (.>) :: f a -> f b -> f b
-  a .> b = const id <$> a <.> b
-
-  -- | a <. b = const <$> a <.> b
-  (<.) :: f a -> f b -> f a
-  a <. b = const    <$> a <.> b
-
--- this only requires a Semigroup
-instance Monoid m => FunctorApply ((,)m) where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
--- this only requires a Semigroup
-instance Monoid m => FunctorApply ((->)m) where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply ZipList where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply [] where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply IO where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply Maybe where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply Identity where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance FunctorApply w => FunctorApply (IdentityT w) where
-  IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
-
-instance Monad m => FunctorApply (WrappedMonad m) where
-  (<.>) = (<*>) 
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance Monoid m => FunctorApply (Const m) where
-  (<.>) = (<*>) 
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance Arrow a => FunctorApply (WrappedArrow a b) where
-  (<.>) = (<*>) 
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
--- | Wrap an 'Applicative' to be used as a member of 'FunctorApply'
-newtype WrappedApplicative f a = WrappedApplicative { unwrapApplicative :: f a } 
-
-instance Functor f => Functor (WrappedApplicative f) where
-  fmap f (WrappedApplicative a) = WrappedApplicative (f <$> a)
-
-instance Applicative f => FunctorApply (WrappedApplicative f) where
-  WrappedApplicative f <.> WrappedApplicative a = WrappedApplicative (f <*> a)
-  WrappedApplicative a <.  WrappedApplicative b = WrappedApplicative (a <*  b)
-  WrappedApplicative a  .> WrappedApplicative b = WrappedApplicative (a  *> b)
-
-instance Applicative f => Applicative (WrappedApplicative f) where
-  pure = WrappedApplicative . pure
-  WrappedApplicative f <*> WrappedApplicative a = WrappedApplicative (f <*> a)
-  WrappedApplicative a <*  WrappedApplicative b = WrappedApplicative (a <*  b)
-  WrappedApplicative a  *> WrappedApplicative b = WrappedApplicative (a  *> b)
+instance ComonadApply f => ComonadApply (MaybeApply f)
   
--- | Transform a FunctorApply into an Applicative by adding a unit.
-newtype WrappedApply f a = WrapApply { unwrapApply :: Either (f a) a }
-
-instance Functor f => Functor (WrappedApply f) where
-  fmap f (WrapApply (Right a)) = WrapApply (Right (f     a ))
-  fmap f (WrapApply (Left fa)) = WrapApply (Left  (f <$> fa))
-
-instance FunctorApply f => FunctorApply (WrappedApply f) where
-  WrapApply (Right f) <.> WrapApply (Right a) = WrapApply (Right (f        a ))
-  WrapApply (Right f) <.> WrapApply (Left fa) = WrapApply (Left  (f    <$> fa))
-  WrapApply (Left ff) <.> WrapApply (Right a) = WrapApply (Left  (($a) <$> ff))
-  WrapApply (Left ff) <.> WrapApply (Left fa) = WrapApply (Left  (ff   <.> fa))
-
-  WrapApply a         <. WrapApply (Right _) = WrapApply a
-  WrapApply (Right a) <. WrapApply (Left fb) = WrapApply (Left (a  <$ fb))
-  WrapApply (Left fa) <. WrapApply (Left fb) = WrapApply (Left (fa <. fb))
-
-  WrapApply (Right _) .> WrapApply b = WrapApply b
-  WrapApply (Left fa) .> WrapApply (Right b) = WrapApply (Left (fa $> b ))
-  WrapApply (Left fa) .> WrapApply (Left fb) = WrapApply (Left (fa .> fb))
-  
-instance FunctorApply f => Applicative (WrappedApply f) where
-  pure a = WrapApply (Right a)
-  (<*>) = (<.>)
-  (<* ) = (<. )
-  ( *>) = ( .>)
-
-instance Comonad f => Comonad (WrappedApply f) where
-  extract (WrapApply (Right a)) = a
-  extract (WrapApply (Left fa)) = extract fa
-  duplicate w@(WrapApply Right{}) = WrapApply (Right w)
-  duplicate (WrapApply (Left fa)) = WrapApply (Left (extend (WrapApply . Left) fa))
-
-instance ComonadApply f => ComonadApply (WrappedApply f)
-  
--- | A variant of '<.>' with the arguments reversed.
-(<..>) :: FunctorApply w => w a -> w (a -> b) -> w b
-(<..>) = liftF2 (flip id)
-{-# INLINE (<..>) #-}
-
--- | Lift a binary function into a comonad with zipping
-liftF2 :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
-liftF2 f a b = f <$> a <.> b
-{-# INLINE liftF2 #-}
-
--- | Lift a ternary function into a comonad with zipping
-liftF3 :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-liftF3 f a b c = f <$> a <.> b <.> c
-{-# INLINE liftF3 #-}
-
 {- | 
 
 A strong lax symmetric semi-monoidal comonad. As such an instance of 
