@@ -9,10 +9,10 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- $definition
 ----------------------------------------------------------------------------
 module Control.Comonad ( 
   -- * Comonads
+  -- $definition
     Comonad(..)
   , (=>>)     -- :: Comonad w => w a -> (w a -> b) -> w b
   , (<<=)     -- :: Comonad w => (w a -> b) -> w a -> w b
