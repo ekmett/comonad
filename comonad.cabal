@@ -1,17 +1,22 @@
 name:          comonad
 category:      Control, Comonads
-version:       0.6.1.1
+version:       0.6.1.2
 license:       BSD3
-cabal-version: >= 1.2
+cabal-version: >= 1.6
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
-homepage:      http://comonad.com/reader/
+homepage:      http://github.com/ekmett/comonad/
 copyright:     Copyright (C) 2008-2011 Edward A. Kmett, Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Haskell 98 comonads
 description:   Haskell 98 comonads
 build-type:    Simple
+
+source-repository head
+  type: git
+  location: git://github.com/ekmett/comonad.git
+
 
 library
   build-depends: 
