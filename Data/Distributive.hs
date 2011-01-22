@@ -17,6 +17,7 @@ module Data.Distributive
 import Control.Applicative
 import Control.Comonad
 import Control.Monad.Trans.Identity
+import Control.Monad.Trans.Reader
 import Control.Monad.Instances ()
 import Data.Functor.Identity
 
@@ -49,6 +50,9 @@ instance Distributive Identity where
 
 instance Distributive ((->)e) where
   distribute w e = fmap ($e) w
+
+instance Distributive g => Distributive (ReaderT e g) where
+  distribute w = ReaderT $ \e -> distribute (fmap (flip runReaderT e) w)
 
 instance Distributive g => Distributive (IdentityT g) where
   cotraverse f w = IdentityT $ cotraverse f (runIdentityT <$> w)
