@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       0.6.2.1
+version:       0.7.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -24,6 +24,5 @@ library
 
   exposed-modules:
     Control.Comonad
-    Data.Distributive
 
   ghc-options: -Wall 
