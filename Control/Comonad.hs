@@ -14,16 +14,12 @@ module Control.Comonad (
   -- * Comonads
   -- $definition
     Comonad(..)
-  , (=>>)     -- :: Comonad w => w a -> (w a -> b) -> w b
-  , (<<=)     -- :: Comonad w => (w a -> b) -> w a -> w b
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
 
   -- * Cokleisli Arrows
   , Cokleisli(..)
-  -- ** Cokleisli composition
-  , (=>=)     -- :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-  , (=<=)     -- :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+  , module Data.Functor.Extend
   ) where
 
 import Prelude hiding (id, (.))
@@ -32,28 +28,17 @@ import Control.Arrow
 import Control.Category
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
+import Data.Functor.Extend
 import Data.Monoid
 import Data.Typeable
-
-infixl 1 =>> 
-infixr 1 <<=, =<=, =>= 
+import Data.Semigroup
 
 {- | $definition -}
 
-class Functor w => Comonad w where
+class Extend w => Comonad w where
   -- | 
   -- > extract . fmap f = f . extract
   extract   :: w a -> a
-  -- | 
-  -- > duplicate = extend id
-  -- > fmap (fmap f) . duplicate = duplicate . fmap f
-  duplicate :: w a -> w (w a)
-  -- |
-  -- > extend f  = fmap f . duplicate
-  extend    :: (w a -> b) -> w a -> w b
-
-  extend f = fmap f . duplicate
-  duplicate = extend id
 
 -- | A suitable default definition for 'fmap' for a 'Comonad'. 
 -- Promotes a function to a comonad.
@@ -62,26 +47,6 @@ class Functor w => Comonad w where
 liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
-
--- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
-(=>>) :: Comonad w => w a -> (w a -> b) -> w b
-(=>>) = flip extend
-{-# INLINE (=>>) #-}
-
--- | 'extend' in operator form 
-(<<=) :: Comonad w => (w a -> b) -> w a -> w b
-(<<=) = extend
-{-# INLINE (<<=) #-}
-
--- | Right-to-left Cokleisli composition 
-(=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
-f =<= g = f . extend g
-{-# INLINE (=<=) #-}
-
--- | Left-to-right Cokleisli composition
-(=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-f =>= g = g . extend f 
-{-# INLINE (=>=) #-}
 
 -- | Comonadic fixed point
 wfix :: Comonad w => w (w a -> a) -> a
@@ -99,11 +64,9 @@ wfix w = extract w (extend wfix w)
 
 instance Comonad ((,)e) where
   extract = snd
-  duplicate ~(e,a) = (e,(e,a))
 
-instance Monoid m => Comonad ((->)m) where
+instance (Semigroup m, Monoid m) => Comonad ((->)m) where
   extract f = f mempty
-  duplicate f m = f . mappend m
 
 -- * Comonads for types from 'transformers'.
 --
@@ -112,14 +75,11 @@ instance Monoid m => Comonad ((->)m) where
 -- TODO: Petition to move Data.Functor.Identity into base
 instance Comonad Identity where
   extract = runIdentity
-  extend f = Identity . f 
-  duplicate = Identity
 
 -- Provided to avoid an orphan instance. Not proposed to standardize. 
 -- If Comonad moved to base, consider moving instance into transformers?
 instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
-  extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
@@ -162,7 +122,6 @@ instance Applicative (Cokleisli w a) where
 instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
-
 
 {- $definition
 
@@ -207,4 +166,3 @@ These are the default definitions of 'extend' and'duplicate' and
 the definition of 'liftW' respectively.
 
 -}
-

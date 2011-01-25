@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       0.7.0
+version:       0.9.0
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -20,9 +20,11 @@ source-repository head
 library
   build-depends: 
     base >= 4 && < 4.4,
-    transformers >= 0.2.0 && < 0.3
+    transformers >= 0.2.0 && < 0.3,
+    semigroups >= 0.3.4 && < 0.5
 
   exposed-modules:
     Control.Comonad
+    Data.Functor.Extend
 
   ghc-options: -Wall 
