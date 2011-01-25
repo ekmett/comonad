@@ -11,15 +11,20 @@
 --
 ----------------------------------------------------------------------------
 module Control.Comonad ( 
+  -- * Extendable Functors
+    Extend(..)
+  , (=>=)
+  , (=<=)
+  , (<<=)
+  , (=>>)
   -- * Comonads
   -- $definition
-    Comonad(..)
+  , Comonad(..)
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
 
   -- * Cokleisli Arrows
   , Cokleisli(..)
-  , module Data.Functor.Extend
   ) where
 
 import Prelude hiding (id, (.))
