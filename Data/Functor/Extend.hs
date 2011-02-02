@@ -24,6 +24,9 @@ import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.Semigroup
 import Data.List (tails)
+import Data.Sequence (Seq) 
+import qualified Data.Sequence as Seq
+import Data.Tree
 
 infixl 1 =>> 
 infixr 1 <<=, =<=, =>= 
@@ -87,6 +90,12 @@ instance Extend ((,)e) where
 
 instance Semigroup m => Extend ((->)m) where
   duplicate f m = f . (<>) m
+
+instance Extend Seq where
+  duplicate = Seq.tails
+
+instance Extend Tree where
+  duplicate w@(Node _ as) = Node w (map duplicate as)
 
 -- I can't fix the world
 -- instance (Monoid m, Extend n) => Extend (ReaderT m n) 

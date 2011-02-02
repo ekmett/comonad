@@ -37,6 +37,7 @@ import Data.Functor.Extend
 import Data.Monoid
 import Data.Typeable
 import Data.Semigroup
+import Data.Tree
 
 {- | $definition -}
 
@@ -85,6 +86,9 @@ instance Comonad Identity where
 -- If Comonad moved to base, consider moving instance into transformers?
 instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
+
+instance Comonad Tree where
+  extract (Node a _) = a
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
