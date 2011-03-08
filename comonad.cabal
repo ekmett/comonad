@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       1.0.1
+version:       1.0.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -21,7 +21,7 @@ library
   build-depends: 
     base >= 4 && < 4.4,
     transformers >= 0.2.0 && < 0.3,
-    containers >= 0.4.0.0 && < 0.5,
+    containers >= 0.3.0.0 && < 0.5,
     semigroups >= 0.3.4 && < 0.5
 
   exposed-modules:
