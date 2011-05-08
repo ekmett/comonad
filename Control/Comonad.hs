@@ -34,6 +34,7 @@ import Control.Category
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.Functor.Extend
+import Data.List.NonEmpty
 import Data.Monoid
 import Data.Typeable
 import Data.Semigroup
@@ -131,6 +132,10 @@ instance Applicative (Cokleisli w a) where
 instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
+
+instance Comonad NonEmpty where
+  extract ~(a :| _) = a
+
 
 {- $definition
 

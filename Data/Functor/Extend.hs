@@ -24,6 +24,7 @@ import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.Semigroup
 import Data.List (tails)
+import Data.List.NonEmpty (NonEmpty(..), toList)
 import Data.Sequence (Seq) 
 import qualified Data.Sequence as Seq
 import Data.Tree
@@ -113,6 +114,11 @@ instance Extend Identity where
 -- If Extend moved to base, consider moving instance into transformers?
 instance Extend w => Extend (IdentityT w) where
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
+
+instance Extend NonEmpty where
+  extend f w@ ~(_ :| aas) = f w :| case aas of
+      []     -> []
+      (a:as) -> toList (extend f (a :| as))
 
 {- $definition
 
