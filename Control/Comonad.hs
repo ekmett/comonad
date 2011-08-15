@@ -35,7 +35,6 @@ import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.Functor.Extend
 import Data.List.NonEmpty
-import Data.Monoid
 import Data.Typeable
 import Data.Semigroup
 import Data.Tree
