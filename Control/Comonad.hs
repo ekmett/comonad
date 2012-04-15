@@ -100,7 +100,7 @@ instance Typeable1 w => Typeable2 (Cokleisli w) where
               wa = undefined
 
 cokleisliTyCon :: TyCon
-#ifdef OLD_TYPEABLE
+#if !MIN_VERSION_base(4,4,0)
 cokleisliTyCon = mkTyCon "Control.Comonad.Cokleisli"
 #else
 cokleisliTyCon = mkTyCon3 "comonad" "Control.Comonad" "Cokleisli"

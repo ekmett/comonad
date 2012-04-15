@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       1.1.1.3
+version:       1.1.1.4
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -8,7 +8,8 @@ author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/comonad/
-copyright:     Copyright (C) 2008-2011 Edward A. Kmett, Copyright (C) 2004-2008 Dave Menendez
+copyright:     Copyright (C) 2008-2012 Edward A. Kmett,
+               Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Haskell 98 compatible comonads
 description:   Haskell 98 compatible comonads
 build-type:    Simple
@@ -17,23 +18,14 @@ source-repository head
   type: git
   location: git://github.com/ekmett/comonad.git
 
-flag OldTypeable
-  default: False
-  manual: False
-
 library
-  if flag(OldTypeable)
-    build-depends: base >= 4 && < 4.4
-  else
-    build-depends: base >= 4.4 && < 5
+  other-extensions: CPP
 
   build-depends:
+    base         >= 4     && < 5,
     transformers >= 0.2   && < 0.4,
     containers   >= 0.3   && < 0.5,
     semigroups   >= 0.8.2 && < 0.9
-
-  if flag(OldTypeable)
-    cpp-options: -DOLD_TYPEABLE
 
   exposed-modules:
     Control.Comonad
