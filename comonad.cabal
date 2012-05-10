@@ -8,11 +8,13 @@ author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/comonad/
+bug-reports:   http://github.com/ekmett/comonad/issues
 copyright:     Copyright (C) 2008-2012 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Haskell 98 compatible comonads
 description:   Haskell 98 compatible comonads
 build-type:    Simple
+extra-source-files: .travis.yml
 
 source-repository head
   type: git
