@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       1.1.1.5
+version:       1.1.1.6
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
