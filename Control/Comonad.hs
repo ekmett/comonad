@@ -11,7 +11,7 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Control.Comonad ( 
+module Control.Comonad (
   -- * Extendable Functors
     Extend(..)
   , (=>=)
@@ -23,6 +23,7 @@ module Control.Comonad (
   , Comonad(..)
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
+  , cfix      -- :: Comonad w => (w a -> a) -> w a
 
   -- * Cokleisli Arrows
   , Cokleisli(..)
@@ -32,6 +33,7 @@ import Prelude hiding (id, (.))
 import Control.Applicative
 import Control.Arrow
 import Control.Category
+import Control.Monad.Fix
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.Functor.Extend
@@ -55,9 +57,13 @@ liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
 
--- | Comonadic fixed point
+-- | Comonadic fixed point a la Menendez
 wfix :: Comonad w => w (w a -> a) -> a
 wfix w = extract w (extend wfix w)
+
+-- | Comonadic fixed point a la Orchard
+cfix :: Comonad w => (w a -> a) -> w a
+cfix f = fix (extend f)
 
 -- * Comonads for Prelude types:
 --
