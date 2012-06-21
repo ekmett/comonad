@@ -53,9 +53,6 @@ infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
 infixr 1 <<=, =<=, =>=
 
-($>) :: Functor f => f a -> b -> f b
-($>) = flip (<$)
-
 {- |
 
 There are two ways to define a comonad:
@@ -301,3 +298,7 @@ instance Applicative (Cokleisli w a) where
 instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
+
+-- | Replace the contents of a functor uniformly with a constant value.
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
