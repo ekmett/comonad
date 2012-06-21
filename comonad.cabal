@@ -26,7 +26,8 @@ library
   build-depends:
     base         >= 4       && < 5,
     transformers >= 0.2     && < 0.4,
-    containers   >= 0.3     && < 0.6
+    containers   >= 0.3     && < 0.6,
+    semigroups   >= 0.8.3   && < 0.8.4
 
   exposed-modules:
     Control.Comonad
