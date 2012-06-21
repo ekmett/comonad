@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
--- Copyright   :  (C) 2008-2011 Edward Kmett,
+-- Copyright   :  (C) 2008-2012 Edward Kmett,
 --                (C) 2004 Dave Menendez
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -12,19 +12,15 @@
 --
 ----------------------------------------------------------------------------
 module Control.Comonad (
-  -- * Extendable Functors
-    Extend(..)
+  -- * Comonads
+    Comonad(..)
+  , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
+  , wfix      -- :: Comonad w => w (w a -> a) -> a
+  , cfix      -- :: Comonad w => (w a -> a) -> w a
   , (=>=)
   , (=<=)
   , (<<=)
   , (=>>)
-  -- * Comonads
-  -- $definition
-  , Comonad(..)
-  , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
-  , wfix      -- :: Comonad w => w (w a -> a) -> a
-  , cfix      -- :: Comonad w => (w a -> a) -> w a
-
   -- * Cokleisli Arrows
   , Cokleisli(..)
   ) where
@@ -35,21 +31,95 @@ import Control.Arrow
 import Control.Category
 import Control.Monad.Fix
 import Control.Monad.Trans.Identity
+import Data.Monoid
 import Data.Functor.Identity
-import Data.Functor.Extend
-import Data.List.NonEmpty
 import Data.Typeable
-import Data.Semigroup
 import Data.Tree
 
-{- | $definition -}
+infixl 1 =>>
+infixr 1 <<=, =<=, =>=
 
-class Extend w => Comonad w where
-  -- | 
+-- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
+(=>>) :: Comonad w => w a -> (w a -> b) -> w b
+(=>>) = flip extend
+{-# INLINE (=>>) #-}
+
+-- | 'extend' in operator form
+(<<=) :: Comonad w => (w a -> b) -> w a -> w b
+(<<=) = extend
+{-# INLINE (<<=) #-}
+
+-- | Right-to-left Cokleisli composition
+(=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
+f =<= g = f . extend g
+{-# INLINE (=<=) #-}
+
+-- | Left-to-right Cokleisli composition
+(=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
+f =>= g = g . extend f
+{-# INLINE (=>=) #-}
+
+{- |
+
+There are two ways to define a comonad:
+
+I. Provide definitions for 'extract' and 'extend'
+satisfying these laws:
+
+> extend extract      = id
+> extract . extend f  = f
+> extend f . extend g = extend (f . extend g)
+
+In this case, you may simply set 'fmap' = 'liftW'.
+
+These laws are directly analogous to the laws for monads
+and perhaps can be made clearer by viewing them as laws stating
+that Cokleisli composition must be associative, and has extract for
+a unit:
+
+> f =>= extract   = f
+> extract =>= f   = f
+> (f =>= g) =>= h = f =>= (g =>= h)
+
+II. Alternately, you may choose to provide definitions for 'fmap',
+'extract', and 'duplicate' satisfying these laws:
+
+> extract . duplicate      = id
+> fmap extract . duplicate = id
+> duplicate . duplicate    = fmap duplicate . duplicate
+
+In this case you may not rely on the ability to define 'fmap' in
+terms of 'liftW'.
+
+You may of course, choose to define both 'duplicate' /and/ 'extend'.
+In that case you must also satisfy these laws:
+
+> extend f  = fmap f . duplicate
+> duplicate = extend id
+> fmap f    = extend (f . extract)
+
+These are the default definitions of 'extend' and'duplicate' and
+the definition of 'liftW' respectively.
+
+-}
+
+class Functor w => Comonad w where
+  -- |
   -- > extract . fmap f = f . extract
-  extract   :: w a -> a
+  extract :: w a -> a
 
--- | A suitable default definition for 'fmap' for a 'Comonad'. 
+  -- |
+  -- > duplicate = extend id
+  -- > fmap (fmap f) . duplicate = duplicate . fmap f
+  duplicate :: w a -> w (w a)
+  duplicate = extend id
+
+  -- |
+  -- > extend f  = fmap f . duplicate
+  extend :: (w a -> b) -> w a -> w b
+  extend f = fmap f . duplicate
+
+-- | A suitable default definition for 'fmap' for a 'Comonad'.
 -- Promotes a function to a comonad.
 --
 -- > fmap f    = extend (f . extract)
@@ -66,44 +136,41 @@ cfix :: Comonad w => (w a -> a) -> w a
 cfix f = fix (extend f)
 
 -- * Comonads for Prelude types:
---
--- Instances: While Control.Comonad.Instances would be more symmetric
--- to the definition of Control.Monad.Instances in base, the reason
--- the latter exists is because of Haskell 98 specifying the types
--- @'Either' a@, @((,)m)@ and @((->)e)@ and the class Monad without
--- having the foresight to require or allow instances between them.
--- Here Haskell 98 says nothing about Comonads, so we can include the
--- instances directly avoiding the wart of orphan instances.
 
 instance Comonad ((,)e) where
+  duplicate p = (fst p, p)
   extract = snd
 
-instance (Semigroup m, Monoid m) => Comonad ((->)m) where
+instance Monoid m => Comonad ((->)m) where
+  duplicate f m = f . mappend m
   extract f = f mempty
 
 -- * Comonads for types from 'transformers'.
---
--- This isn't really a transformer, so i have no compunction about including the instance here.
---
+
 -- TODO: Petition to move Data.Functor.Identity into base
 instance Comonad Identity where
+  duplicate = Identity
   extract = runIdentity
 
--- Provided to avoid an orphan instance. Not proposed to standardize. 
+-- Provided to avoid an orphan instance. Not proposed to standardize.
 -- If Comonad moved to base, consider moving instance into transformers?
 instance Comonad w => Comonad (IdentityT w) where
+  extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
   extract = extract . runIdentityT
 
 instance Comonad Tree where
+  duplicate w@(Node _ as) = Node w (map duplicate as)
   extract (Node a _) = a
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 
+#ifdef __GLASGOW_HASKELL__
 instance Typeable1 w => Typeable2 (Cokleisli w) where
   typeOf2 twab = mkTyConApp cokleisliTyCon [typeOf1 (wa twab)]
         where wa :: Cokleisli w a b -> w a
               wa = undefined
+#endif
 
 cokleisliTyCon :: TyCon
 #if MIN_VERSION_base(4,4,0)
@@ -143,50 +210,10 @@ instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
 
+{-
 instance Comonad NonEmpty where
+  extend f w@ ~(_ :| aas) = f w :| case aas of
+      []     -> []
+      (a:as) -> toList (extend f (a :| as))
   extract ~(a :| _) = a
-
-
-{- $definition
-
-There are two ways to define a comonad:
-
-I. Provide definitions for 'extract' and 'extend'
-satisfying these laws:
-
-> extend extract      = id
-> extract . extend f  = f
-> extend f . extend g = extend (f . extend g)
-
-In this case, you may simply set 'fmap' = 'liftW'.
-
-These laws are directly analogous to the laws for monads
-and perhaps can be made clearer by viewing them as laws stating
-that Cokleisli composition must be associative, and has extract for
-a unit:
-
-> f =>= extract   = f
-> extract =>= f   = f
-> (f =>= g) =>= h = f =>= (g =>= h)
-
-II. Alternately, you may choose to provide definitions for 'fmap',
-'extract', and 'duplicate' satisfying these laws:
-
-> extract . duplicate      = id
-> fmap extract . duplicate = id
-> duplicate . duplicate    = fmap duplicate . duplicate
-
-In this case you may not rely on the ability to define 'fmap' in 
-terms of 'liftW'.
-
-You may of course, choose to define both 'duplicate' /and/ 'extend'. 
-In that case you must also satisfy these laws:
-
-> extend f  = fmap f . duplicate
-> duplicate = extend id
-> fmap f    = extend (f . extract)
-
-These are the default definitions of 'extend' and'duplicate' and 
-the definition of 'liftW' respectively.
-
 -}
