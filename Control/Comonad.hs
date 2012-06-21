@@ -31,6 +31,7 @@ module Control.Comonad (
   -- * Functors
   , Functor(..)
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
+  , ($>)      -- :: Functor f => f a -> b -> f b
   ) where
 
 -- import _everything_
@@ -48,9 +49,12 @@ import Prelude hiding (id, (.))
 import Control.Monad.Fix
 import Data.Typeable
 
-infixl 4 <@, @>, <@@>, <@>
+infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
 infixr 1 <<=, =<=, =>=
+
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
 
 {- |
 
