@@ -58,4 +58,3 @@ fibo' d = fst $ wfix $ d $> fby (0, 1) . fmap (\(x, x') -> (x',x+x'))
 
 plus :: Num a => History a -> History a -> History a
 plus = liftW2 (+)
-
