@@ -3,6 +3,13 @@ comonad
 
 [![Build Status](https://secure.travis-ci.org/ekmett/comonad.png?branch=master)](http://travis-ci.org/ekmett/comonad)
 
+This package provides comonads, the categorical dual of monads.
+
+    class Functor w => Comonad w where
+        extract :: w a -> a
+        duplicate :: w a -> w (w a)
+        extend :: (w a -> b) -> w a -> w b
+
 There are two ways to define a comonad:
 
 I. Provide definitions for 'extract' and 'extend' satisfying these laws:
