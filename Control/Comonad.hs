@@ -157,7 +157,7 @@ instance Comonad NonEmpty where
 --
 -- > (<*>) = (<@>)
 --
--- Finally, if you choose to define ('\<\@') and (\'@\>@), the results of your
+-- Finally, if you choose to define ('<@') and ('@>'), the results of your
 -- definitions should match the following laws:
 --
 -- > a @> b = const id <$> a <@> b
