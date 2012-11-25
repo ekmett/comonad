@@ -116,29 +116,38 @@ class Functor w => Comonad w where
 
 instance Comonad ((,)e) where
   duplicate p = (fst p, p)
+  {-# INLINE duplicate #-}
   extract = snd
+  {-# INLINE extract #-}
 
 instance Monoid m => Comonad ((->)m) where
   duplicate f m = f . mappend m
+  {-# INLINE duplicate #-}
   extract f = f mempty
+  {-# INLINE extract #-}
 
 instance Comonad Identity where
   duplicate = Identity
+  {-# INLINE duplicate #-}
   extract = runIdentity
+  {-# INLINE extract #-}
 
 instance Comonad w => Comonad (IdentityT w) where
   extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
   extract = extract . runIdentityT
+  {-# INLINE extract #-}
 
 instance Comonad Tree where
   duplicate w@(Node _ as) = Node w (map duplicate as)
   extract (Node a _) = a
+  {-# INLINE extract #-}
 
 instance Comonad NonEmpty where
   extend f w@ ~(_ :| aas) = f w :| case aas of
       []     -> []
       (a:as) -> toList (extend f (a :| as))
   extract ~(a :| _) = a
+  {-# INLINE extract #-}
 
 -- | A @ComonadApply w@ is a strong lax symmetric semi-monoidal comonad on the
 -- category @Hask@ of Haskell types.
