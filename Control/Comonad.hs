@@ -149,12 +149,12 @@ instance Comonad NonEmpty where
   extract ~(a :| _) = a
   {-# INLINE extract #-}
 
--- | A @ComonadApply w@ is a strong lax symmetric semi-monoidal comonad on the
--- category @Hask@ of Haskell types.
+-- | @ComonadApply@ is to @Comonad@ like @Applicative@ is to @Monad@.
 --
--- That it to say that @w@ is a strong lax symmetric semi-monoidal functor on
--- Hask, where both extract and duplicate are symmetric monoidal natural
--- transformations.
+-- Mathematically, it is a strong lax symmetric semi-monoidal comonad on the
+-- category @Hask@ of Haskell types. That it to say that @w@ is a strong lax
+-- symmetric semi-monoidal functor on Hask, where both extract and duplicate are
+-- symmetric monoidal natural transformations.
 --
 -- Laws:
 --
