@@ -276,7 +276,7 @@ newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 #if __GLASGOW_HASKELL__ >= 707
 -- instance Typeable (Cokleisli w) derived automatically
 #else
-#if __GLASGOW_HASKELL__
+#ifdef __GLASGOW_HASKELL__
 instance Typeable1 w => Typeable2 (Cokleisli w) where
   typeOf2 twab = mkTyConApp cokleisliTyCon [typeOf1 (wa twab)]
         where wa :: Cokleisli w a b -> w a
