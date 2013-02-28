@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
------------------------------------------------------------------------------
+#if __GLASGOW_HASKELL__ >= 707
+{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving #-}
+#endif
+ -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
 -- Copyright   :  (C) 2008-2012 Edward Kmett,
@@ -39,7 +42,11 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
+#if MIN_VERSION_base(4,7,0)
+-- Control.Monad.Instances is empty
+#else
 import Control.Monad.Instances
+#endif
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.List.NonEmpty hiding (map)
@@ -47,7 +54,11 @@ import Data.Semigroup hiding (Product)
 import Data.Tree
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
+#if __GLASGOW_HASKELL__ >= 707
+-- Data.Typeable is redundant
+#else
 import Data.Typeable
+#endif
 
 infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
@@ -262,7 +273,10 @@ liftW3 f a b c = f <$> a <@> b <@> c
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 
-#ifdef __GLASGOW_HASKELL__
+#if __GLASGOW_HASKELL__ >= 707
+-- instance Typeable (Cokleisli w) derived automatically
+#else
+#if __GLASGOW_HASKELL__
 instance Typeable1 w => Typeable2 (Cokleisli w) where
   typeOf2 twab = mkTyConApp cokleisliTyCon [typeOf1 (wa twab)]
         where wa :: Cokleisli w a b -> w a
@@ -276,6 +290,7 @@ cokleisliTyCon = mkTyCon3 "comonad" "Control.Comonad" "Cokleisli"
 cokleisliTyCon = mkTyCon "Control.Comonad.Cokleisli"
 #endif
 {-# NOINLINE cokleisliTyCon #-}
+#endif
 
 instance Comonad w => Category (Cokleisli w) where
   id = Cokleisli extract
