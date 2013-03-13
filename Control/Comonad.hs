@@ -170,8 +170,8 @@ instance Comonad NonEmpty where
 -- Laws:
 --
 -- > (.) <$> u <@> v <@> w = u <@> (v <@> w)
--- > extract p (extract q) = extract (p <@> q)
--- > duplicate (p <*> q) = (\r s -> fmap (r <@> s)) <@> duplicate q <*> duplicate q
+-- > extract (p <@> q) = extract p (extract q)
+-- > duplicate (p <@> q) = (<@>) <$> duplicate p <@> duplicate q
 --
 -- If our type is both a ComonadApply and Applicative we further require
 --
