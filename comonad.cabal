@@ -26,6 +26,7 @@ source-repository head
   location: git://github.com/ekmett/comonad.git
 
 library
+  hs-source-dirs: src
   other-extensions: CPP
 
   build-depends:
