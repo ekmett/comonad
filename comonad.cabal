@@ -32,6 +32,7 @@ source-repository head
 
 library
   hs-source-dirs: src
+  default-language: Haskell2010
   other-extensions: CPP
 
   build-depends:
@@ -47,6 +48,7 @@ library
 
 test-suite doctests
   type:           exitcode-stdio-1.0
+  default-language: Haskell2010
   main-is:        doctests.hs
   ghc-options:    -Wall -threaded
   hs-source-dirs: tests
