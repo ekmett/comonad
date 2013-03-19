@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
------------------------------------------------------------------------------
+#if __GLASGOW_HASKELL__ >= 707
+{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving #-}
+#endif
+ -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
 -- Copyright   :  (C) 2008-2012 Edward Kmett,
@@ -39,7 +42,11 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
+#if MIN_VERSION_base(4,7,0)
+-- Control.Monad.Instances is empty
+#else
 import Control.Monad.Instances
+#endif
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.List.NonEmpty hiding (map)
@@ -47,7 +54,11 @@ import Data.Semigroup hiding (Product)
 import Data.Tree
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
+#if __GLASGOW_HASKELL__ >= 707
+-- Data.Typeable is redundant
+#else
 import Data.Typeable
+#endif
 
 infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
@@ -149,18 +160,18 @@ instance Comonad NonEmpty where
   extract ~(a :| _) = a
   {-# INLINE extract #-}
 
--- | A @ComonadApply w@ is a strong lax symmetric semi-monoidal comonad on the
--- category @Hask@ of Haskell types.
+-- | @ComonadApply@ is to @Comonad@ like @Applicative@ is to @Monad@.
 --
--- That it to say that @w@ is a strong lax symmetric semi-monoidal functor on
--- Hask, where both extract and duplicate are symmetric monoidal natural
--- transformations.
+-- Mathematically, it is a strong lax symmetric semi-monoidal comonad on the
+-- category @Hask@ of Haskell types. That it to say that @w@ is a strong lax
+-- symmetric semi-monoidal functor on Hask, where both extract and duplicate are
+-- symmetric monoidal natural transformations.
 --
 -- Laws:
 --
 -- > (.) <$> u <@> v <@> w = u <@> (v <@> w)
--- > extract p (extract q) = extract (p <@> q)
--- > duplicate (p <*> q) = (\r s -> fmap (r <@> s)) <@> duplicate q <*> duplicate q
+-- > extract (p <@> q) = extract p (extract q)
+-- > duplicate (p <@> q) = (<@>) <$> duplicate p <@> duplicate q
 --
 -- If our type is both a ComonadApply and Applicative we further require
 --
@@ -262,6 +273,9 @@ liftW3 f a b c = f <$> a <@> b <@> c
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 
+#if __GLASGOW_HASKELL__ >= 707
+-- instance Typeable (Cokleisli w) derived automatically
+#else
 #ifdef __GLASGOW_HASKELL__
 instance Typeable1 w => Typeable2 (Cokleisli w) where
   typeOf2 twab = mkTyConApp cokleisliTyCon [typeOf1 (wa twab)]
@@ -276,6 +290,7 @@ cokleisliTyCon = mkTyCon3 "comonad" "Control.Comonad" "Cokleisli"
 cokleisliTyCon = mkTyCon "Control.Comonad.Cokleisli"
 #endif
 {-# NOINLINE cokleisliTyCon #-}
+#endif
 
 instance Comonad w => Category (Cokleisli w) where
   id = Cokleisli extract

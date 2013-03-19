@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       3.0.1.1
+version:       3.0.1.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -9,7 +9,7 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/comonad/
 bug-reports:   http://github.com/ekmett/comonad/issues
-copyright:     Copyright (C) 2008-2012 Edward A. Kmett,
+copyright:     Copyright (C) 2008-2013 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Haskell 98 compatible comonads
 description:   Haskell 98 compatible comonads
@@ -27,7 +27,7 @@ library
     base         >= 4       && < 5,
     transformers >= 0.2     && < 0.4,
     containers   >= 0.3     && < 0.6,
-    semigroups   >= 0.8.3
+    semigroups   >= 0.8.3   && < 1
 
   exposed-modules:
     Control.Comonad
