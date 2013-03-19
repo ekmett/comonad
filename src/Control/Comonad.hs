@@ -318,7 +318,7 @@ instance Functor (Cokleisli w a) where
 
 instance Applicative (Cokleisli w a) where
   pure = Cokleisli . const
-  Cokleisli f <*> Cokleisli a = Cokleisli (\w -> (f w) (a w))
+  Cokleisli f <*> Cokleisli a = Cokleisli (\w -> f w (a w))
 
 instance Monad (Cokleisli w a) where
   return = Cokleisli . const
