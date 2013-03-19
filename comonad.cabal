@@ -14,7 +14,12 @@ copyright:     Copyright (C) 2008-2013 Edward A. Kmett,
 synopsis:      Haskell 98 compatible comonads
 description:   Haskell 98 compatible comonads
 build-type:    Simple
-extra-source-files: .travis.yml
+extra-source-files:
+  .gitignore
+  .travis.yml
+  README.markdown
+  CHANGELOG.markdown
+  examples/History.hs
 
 source-repository head
   type: git
