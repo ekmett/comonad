@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       3.0.1.2
+version:       3.0.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -13,13 +13,18 @@ copyright:     Copyright (C) 2008-2013 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Haskell 98 compatible comonads
 description:   Haskell 98 compatible comonads
-build-type:    Simple
+build-type:    Custom
 extra-source-files:
   .gitignore
   .travis.yml
   README.markdown
   CHANGELOG.markdown
   examples/History.hs
+
+-- You can disable the doctests test suite with -f-test-doctests
+flag test-doctests
+  default: True
+  manual: True
 
 source-repository head
   type: git
@@ -39,3 +44,22 @@ library
     Control.Comonad
 
   ghc-options: -Wall
+
+test-suite doctests
+  type:           exitcode-stdio-1.0
+  main-is:        doctests.hs
+  ghc-options:    -Wall -threaded
+  hs-source-dirs: tests
+
+  if !flag(test-doctests)
+    buildable: False
+  else
+    build-depends:
+      base,
+      directory      >= 1.0,
+      doctest        >= 0.9.1,
+      filepath
+
+  if impl(ghc<7.6.1)
+    ghc-options: -Werror
+
