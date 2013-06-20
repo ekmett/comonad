@@ -1,3 +1,7 @@
+3.0.3
+-----
+* Trustworthy or Safe depending on GHC version
+
 3.0.2
 -------
 * GHC 7.7 HEAD compatibility
