@@ -2,7 +2,7 @@
 #ifdef __GLASGOW_HASKELL__
 #if __GLASGOW_HASKELL__ >= 707
 {-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, Safe #-}
-#elsif __GLASGOW_HASKELL__ >= 702
+#elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
 #endif
