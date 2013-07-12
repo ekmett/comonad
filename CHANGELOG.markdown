@@ -1,3 +1,7 @@
+3.1
+---
+* Added `instance Comonad (Tagged s)`.
+
 3.0.3
 -----
 * Trustworthy or Safe depending on GHC version

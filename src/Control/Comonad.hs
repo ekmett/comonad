@@ -55,6 +55,7 @@ import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import Data.List.NonEmpty hiding (map)
 import Data.Semigroup hiding (Product)
+import Data.Tagged
 import Data.Tree
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
@@ -145,6 +146,12 @@ instance Comonad Identity where
   duplicate = Identity
   {-# INLINE duplicate #-}
   extract = runIdentity
+  {-# INLINE extract #-}
+
+instance Comonad (Tagged s) where
+  duplicate = Tagged
+  {-# INLINE duplicate #-}
+  extract = unTagged
   {-# INLINE extract #-}
 
 instance Comonad w => Comonad (IdentityT w) where
