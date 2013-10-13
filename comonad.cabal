@@ -23,6 +23,7 @@ extra-source-files:
   README.markdown
   CHANGELOG.markdown
   examples/History.hs
+  HLint.hs
 
 -- You can disable the doctests test suite with -f-test-doctests
 flag test-doctests
