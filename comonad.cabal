@@ -37,30 +37,43 @@ library
   hs-source-dirs: src
   default-language: Haskell2010
   other-extensions: CPP
+  ghc-options: -Wall
 
   build-depends:
     base          >= 4       && < 5,
     containers    >= 0.3     && < 0.6,
     contravariant >= 0.2.0.1 && < 1,
     distributive  >= 0.2.2   && < 1,
+    mtl           >= 2.0     && < 2.2,
     semigroups    >= 0.8.3.1 && < 1,
     tagged        >= 0.1     && < 1,
     transformers  >= 0.2     && < 0.4
 
   exposed-modules:
     Control.Comonad
+    Control.Comonad.Env
+    Control.Comonad.Env.Class
     Control.Comonad.Hoist.Class
+    Control.Comonad.Identity
+    Control.Comonad.Store
+    Control.Comonad.Store.Class
+    Control.Comonad.Traced
+    Control.Comonad.Traced.Class
     Control.Comonad.Trans.Class
     Control.Comonad.Trans.Env
     Control.Comonad.Trans.Identity
     Control.Comonad.Trans.Store
     Control.Comonad.Trans.Traced
-    Data.Functor.Coproduct
     Data.Functor.Composition
+    Data.Functor.Coproduct
 
   default-extensions: CPP
-
-  ghc-options: -Wall
+  other-extensions:
+    RankNTypes
+    MultiParamTypeClasses
+    FunctionalDependencies
+    FlexibleInstances
+    UndecidableInstances
 
 test-suite doctests
   type:           exitcode-stdio-1.0

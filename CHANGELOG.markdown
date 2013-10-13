@@ -1,3 +1,7 @@
+3.2
+---
+* Merged the contents of `comonad-transformers` and `comonads-fd` into this package.
+
 3.1
 ---
 * Added `instance Comonad (Tagged s)`.
