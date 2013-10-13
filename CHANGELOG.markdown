@@ -1,4 +1,4 @@
-3.2
+4.0
 ---
 * Merged the contents of `comonad-transformers` and `comonads-fd` into this package.
 
