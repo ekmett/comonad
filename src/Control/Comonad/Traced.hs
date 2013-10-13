@@ -25,9 +25,11 @@ module Control.Comonad.Traced (
   -- * Re-exported modules
   , module Control.Comonad
   , module Control.Comonad.Trans.Class
+  , module Data.Monoid
   ) where
 
 import Control.Comonad
 import Control.Comonad.Traced.Class (ComonadTraced(..), traces)
 import Control.Comonad.Trans.Class
 import Control.Comonad.Trans.Traced (Traced, traced, runTraced, TracedT(..), runTracedT)
+import Data.Monoid
