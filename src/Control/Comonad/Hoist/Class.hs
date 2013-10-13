@@ -17,6 +17,8 @@ import Control.Comonad
 import Control.Monad.Trans.Identity
 
 class ComonadHoist t where
+  -- | Given any comonad-homomorphism from @w@ to @v@ this yields a comonad
+  -- homomorphism from @t w@ to @t v@.
   cohoist :: (Comonad w, Comonad v) => (forall x. w x -> v x) -> t w a -> t v a
 
 instance ComonadHoist IdentityT where
