@@ -58,7 +58,7 @@ library
     Data.Functor.Coproduct
     Data.Functor.Composition
 
-  extensions: CPP
+  default-extensions: CPP
 
   ghc-options: -Wall
 
