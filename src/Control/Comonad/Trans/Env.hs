@@ -151,7 +151,7 @@ lowerEnvT :: EnvT e w a -> w a
 lowerEnvT (EnvT _ wa) = wa
 
 instance ComonadHoist (EnvT e) where
-  cohoist (EnvT e wa) = EnvT e (Identity (extract wa))
+  cohoist l (EnvT e wa) = EnvT e (l wa)
 
 instance (Semigroup e, ComonadApply w) => ComonadApply (EnvT e w) where
   EnvT ef wf <@> EnvT ea wa = EnvT (ef <> ea) (wf <@> wa)

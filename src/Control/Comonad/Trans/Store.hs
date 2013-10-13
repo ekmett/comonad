@@ -135,7 +135,7 @@ instance ComonadTrans (StoreT s) where
   lower (StoreT f s) = fmap ($ s) f
 
 instance ComonadHoist (StoreT s) where
-  cohoist (StoreT f s) = StoreT (Identity (extract f)) s
+  cohoist l (StoreT f s) = StoreT (l f) s
 
 -- | Read the stored value
 --

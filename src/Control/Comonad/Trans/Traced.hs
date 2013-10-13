@@ -76,7 +76,7 @@ instance Monoid m => ComonadTrans (TracedT m) where
   lower = fmap ($ mempty) . runTracedT
 
 instance Monoid m => ComonadHoist (TracedT m) where
-  cohoist = traced . extract . runTracedT
+  cohoist l = TracedT . l . runTracedT
 
 instance Distributive w => Distributive (TracedT m w) where
   distribute = TracedT . fmap (\tma m -> fmap ($ m) tma) . collect runTracedT
