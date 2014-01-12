@@ -24,24 +24,33 @@
 --
 -- @stored value = (1, 5)@, @accessor = fst@, @resulting focus = 1@:
 --
--- > storeTuple :: Store (Int, Int) Int
--- > storeTuple = store fst (1, 5)
+-- >>> :{
+--  let
+--    storeTuple :: Store (Int, Int) Int
+--    storeTuple = store fst (1, 5)
+-- :}
 --
 -- Add something to the focus:
 --
--- > addToFocus :: Int -> Store (Int, Int) Int -> Int
--- > addToFocus x wa = x + extract wa
--- >
--- > added3 :: Store (Int, Int) Int
--- > added3 = extend (addToFocus 3) storeTuple
+-- >>> :{
+--  let
+--    addToFocus :: Int -> Store (Int, Int) Int -> Int
+--    addToFocus x wa = x + extract wa
+-- :}
+--
+-- >>> :{
+--   let
+--     added3 :: Store (Int, Int) Int
+--     added3 = extend (addToFocus 3) storeTuple
+-- :}
 --
 -- The focus of added3 is now @1 + 3 = 4@. However, this action changed only
 -- the accessor function and therefore the focus but not the stored value:
 --
--- > pos added3
--- (1, 5)
+-- >>> pos added3
+-- (1,5)
 --
--- > extract added3
+-- >>> extract added3
 -- 4
 --
 -- The strict store (state-in-context/costate) comonad transformer is subject
@@ -76,6 +85,9 @@ import Data.Semigroup
 
 #ifdef __GLASGOW_HASKELL__
 import Data.Typeable
+
+-- $setup
+-- >>> import Data.Tuple (swap)
 
 #if __GLASGOW_HASKELL__ >= 707
 deriving instance Typeable StoreT
@@ -147,8 +159,8 @@ pos (StoreT _ s) = s
 
 -- | Set the stored value
 --
--- > pos . seek (3,7) $ store fst (1,5)
--- > (3,7)
+-- >>> pos . seek (3,7) $ store fst (1,5)
+-- (3,7)
 --
 -- Seek satisfies the law
 --
@@ -158,7 +170,7 @@ seek s ~(StoreT f _) = StoreT f s
 
 -- | Modify the stored value
 --
--- > pos . seeks swap $ store fst (1,5)
+-- >>> pos . seeks swap $ store fst (1,5)
 -- (5,1)
 --
 -- Seeks satisfies the law
