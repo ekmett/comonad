@@ -89,7 +89,7 @@ test-suite doctests
     build-depends:
       base,
       directory      >= 1.0,
-      doctest        >= 0.9.1,
+      doctest        >= 0.9.10,
       filepath
 
   if impl(ghc<7.6.1)
