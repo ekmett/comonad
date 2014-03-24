@@ -84,7 +84,6 @@ instance (Typeable s, Typeable1 w) => Typeable1 (EnvT s w) where
       s = undefined
       w :: EnvT s w a -> w a
       w = undefined
-#endif
 
 envTTyCon :: TyCon
 #if __GLASGOW_HASKELL__ < 704
@@ -93,6 +92,8 @@ envTTyCon = mkTyCon "Control.Comonad.Trans.Env.EnvT"
 envTTyCon = mkTyCon3 "comonad-transformers" "Control.Comonad.Trans.Env" "EnvT"
 #endif
 {-# NOINLINE envTTyCon #-}
+
+#endif
 
 #if __GLASGOW_HASKELL__ < 707
 instance (Typeable s, Typeable1 w, Typeable a) => Typeable (EnvT s w a) where
