@@ -38,7 +38,9 @@ module Control.Comonad.Trans.Traced
   ) where
 
 import Control.Applicative
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
+#endif
 import Control.Monad (ap)
 import Control.Comonad
 import Control.Comonad.Hoist.Class
