@@ -1,3 +1,7 @@
+4.0.1
+-----
+* Fixes to avoid warnings on GHC 7.8.1
+
 4.0
 ---
 * Merged the contents of `comonad-transformers` and `comonads-fd` into this package.
