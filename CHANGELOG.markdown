@@ -1,3 +1,7 @@
+4.1
+---
+* Fixed the 'Typeable' instance for 'Cokleisli on GHC 7.8.1
+
 4.0.1
 -----
 * Fixes to avoid warnings on GHC 7.8.1

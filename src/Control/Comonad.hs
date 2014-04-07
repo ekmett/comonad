@@ -59,11 +59,7 @@ import Data.Tagged
 import Data.Tree
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
-#if __GLASGOW_HASKELL__ >= 707
--- Data.Typeable is redundant
-#else
 import Data.Typeable
-#endif
 
 infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
@@ -76,9 +72,11 @@ There are two ways to define a comonad:
 I. Provide definitions for 'extract' and 'extend'
 satisfying these laws:
 
-> extend extract      = id
-> extract . extend f  = f
-> extend f . extend g = extend (f . extend g)
+@
+'extend' 'extract'      = 'id'
+'extract' . 'extend' f  = f
+'extend' f . 'extend' g = 'extend' (f . 'extend' g)
+@
 
 In this case, you may simply set 'fmap' = 'liftW'.
 
@@ -87,16 +85,20 @@ and perhaps can be made clearer by viewing them as laws stating
 that Cokleisli composition must be associative, and has extract for
 a unit:
 
-> f =>= extract   = f
-> extract =>= f   = f
-> (f =>= g) =>= h = f =>= (g =>= h)
+@
+f '=>=' 'extract'   = f
+'extract' '=>=' f   = f
+(f '=>=' g) '=>=' h = f '=>=' (g '=>=' h)
+@
 
 II. Alternately, you may choose to provide definitions for 'fmap',
 'extract', and 'duplicate' satisfying these laws:
 
-> extract . duplicate      = id
-> fmap extract . duplicate = id
-> duplicate . duplicate    = fmap duplicate . duplicate
+@
+'extract' . 'duplicate'      = 'id'
+'fmap' 'extract' . 'duplicate' = 'id'
+'duplicate' . 'duplicate'    = 'fmap' 'duplicate' . 'duplicate'
+@
 
 In this case you may not rely on the ability to define 'fmap' in
 terms of 'liftW'.
@@ -104,9 +106,11 @@ terms of 'liftW'.
 You may of course, choose to define both 'duplicate' /and/ 'extend'.
 In that case you must also satisfy these laws:
 
-> extend f  = fmap f . duplicate
-> duplicate = extend id
-> fmap f    = extend (f . extract)
+@
+'extend' f  = 'fmap' f . 'duplicate'
+'duplicate' = 'extend' id
+'fmap' f    = 'extend' (f . 'extract')
+@
 
 These are the default definitions of 'extend' and 'duplicate' and
 the definition of 'liftW' respectively.
@@ -115,17 +119,23 @@ the definition of 'liftW' respectively.
 
 class Functor w => Comonad w where
   -- |
-  -- > extract . fmap f = f . extract
+  -- @
+  -- 'extract' . 'fmap' f = f . 'extract'
+  -- @
   extract :: w a -> a
 
   -- |
-  -- > duplicate = extend id
-  -- > fmap (fmap f) . duplicate = duplicate . fmap f
+  -- @
+  -- 'duplicate' = 'extend' 'id'
+  -- 'fmap' ('fmap' f) . 'duplicate' = 'duplicate' . 'fmap' f
+  -- @
   duplicate :: w a -> w (w a)
   duplicate = extend id
 
   -- |
-  -- > extend f = fmap f . duplicate
+  -- @
+  -- 'extend' f = 'fmap' f . 'duplicate'
+  -- @
   extend :: (w a -> b) -> w a -> w b
   extend f = fmap f . duplicate
 
@@ -175,24 +185,30 @@ instance Comonad NonEmpty where
 --
 -- Mathematically, it is a strong lax symmetric semi-monoidal comonad on the
 -- category @Hask@ of Haskell types. That it to say that @w@ is a strong lax
--- symmetric semi-monoidal functor on Hask, where both extract and duplicate are
+-- symmetric semi-monoidal functor on Hask, where both 'extract' and 'duplicate' are
 -- symmetric monoidal natural transformations.
 --
 -- Laws:
 --
--- > (.) <$> u <@> v <@> w = u <@> (v <@> w)
--- > extract (p <@> q) = extract p (extract q)
--- > duplicate (p <@> q) = (<@>) <$> duplicate p <@> duplicate q
+-- @
+-- ('.') '<$>' u '<@>' v '<@>' w = u '<@>' (v '<@>' w)
+-- 'extract' (p '<@>' q) = 'extract' p ('extract' q)
+-- 'duplicate' (p '<@>' q) = ('<@>') '<$>' 'duplicate' p '<@>' 'duplicate' q
+-- @
 --
--- If our type is both a ComonadApply and Applicative we further require
+-- If our type is both a 'ComonadApply' and 'Applicative' we further require
 --
--- > (<*>) = (<@>)
+-- @
+-- ('<*>') = ('<@>')
+-- @
 --
 -- Finally, if you choose to define ('<@') and ('@>'), the results of your
 -- definitions should match the following laws:
 --
--- > a @> b = const id <$> a <@> b
--- > a <@ b = const <$> a <@> b
+-- @
+-- a '@>' b = 'const' 'id' '<$>' a '<@>' b
+-- a '<@' b = 'const' '<$>' a '<@>' b
+-- @
 
 class Comonad w => ComonadApply w where
   (<@>) :: w (a -> b) -> w a -> w b
@@ -232,7 +248,13 @@ instance ComonadApply Tree where
 -- | A suitable default definition for 'fmap' for a 'Comonad'.
 -- Promotes a function to a comonad.
 --
--- > fmap f = liftW f = extend (f . extract)
+-- You can only safely use to define 'fmap' if your 'Comonad'
+-- defined 'extend', not just 'duplicate', since defining
+-- 'extend' in terms of duplicate uses 'fmap'!
+--
+-- @
+-- 'fmap' f = 'liftW' f = 'extend' (f . 'extract')
+-- @
 liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
@@ -256,12 +278,12 @@ cfix f = fix (extend f)
 (<<=) = extend
 {-# INLINE (<<=) #-}
 
--- | Right-to-left Cokleisli composition
+-- | Right-to-left 'Cokleisli' composition
 (=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
 f =<= g = f . extend g
 {-# INLINE (=<=) #-}
 
--- | Left-to-right Cokleisli composition
+-- | Left-to-right 'Cokleisli' composition
 (=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
 f =>= g = g . extend f
 {-# INLINE (=>=) #-}
@@ -271,21 +293,20 @@ f =>= g = g . extend f
 (<@@>) = liftW2 (flip id)
 {-# INLINE (<@@>) #-}
 
--- | Lift a binary function into a comonad with zipping
+-- | Lift a binary function into a 'Comonad' with zipping
 liftW2 :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
 liftW2 f a b = f <$> a <@> b
 {-# INLINE liftW2 #-}
 
--- | Lift a ternary function into a comonad with zipping
+-- | Lift a ternary function into a 'Comonad' with zipping
 liftW3 :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftW3 f a b c = f <$> a <@> b <@> c
 {-# INLINE liftW3 #-}
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
-
 #if __GLASGOW_HASKELL__ >= 707
--- instance Typeable (Cokleisli w) derived automatically
+  deriving Typeable
 #else
 #ifdef __GLASGOW_HASKELL__
 instance Typeable1 w => Typeable2 (Cokleisli w) where
