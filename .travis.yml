@@ -6,13 +6,17 @@ before_install:
 
   # Try installing some of the build-deps with apt-get for speed.
   - travis/cabal-apt-install $mode
+  - cabal install packdeps packunused
 
 install:
   - cabal configure -flib-Werror $mode
-  - cabal build
+  - cabal build --ghc-options=-ddump-minimal-imports
 
 script:
-  - $script && hlint src --cpp-define HLINT
+  - $script
+  - hlint src --cpp-define HLINT
+  - packdeps comonad.cabal
+  - packunused
 
 notifications:
   irc:
