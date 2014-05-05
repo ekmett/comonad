@@ -1,3 +1,7 @@
+4.2
+---
+* `transformers 0.4` compatibility
+
 4.1
 ---
 * Fixed the 'Typeable' instance for 'Cokleisli on GHC 7.8.1
