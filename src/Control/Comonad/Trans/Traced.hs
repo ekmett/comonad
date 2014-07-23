@@ -45,10 +45,13 @@ import Control.Monad (ap)
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
-import Data.Distributive
 import Data.Functor.Identity
 import Data.Semigroup
 import Data.Typeable
+
+#ifdef MIN_VERSION_distributive
+import Data.Distributive
+#endif
 
 type Traced m = TracedT m Identity
 
@@ -80,8 +83,10 @@ instance Monoid m => ComonadTrans (TracedT m) where
 instance Monoid m => ComonadHoist (TracedT m) where
   cohoist l = TracedT . l . runTracedT
 
+#ifdef MIN_VERSION_distributive
 instance Distributive w => Distributive (TracedT m w) where
   distribute = TracedT . fmap (\tma m -> fmap ($ m) tma) . collect runTracedT
+#endif
 
 trace :: Comonad w => m -> TracedT m w a -> a
 trace m (TracedT wf) = extract wf m
