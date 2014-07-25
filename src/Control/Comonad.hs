@@ -56,10 +56,13 @@ import Data.Functor.Identity
 import Data.List.NonEmpty hiding (map)
 import Data.Semigroup hiding (Product)
 import Data.Tagged
-import Data.Tree
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
 import Data.Typeable
+
+#ifdef MIN_VERSION_containers
+import Data.Tree
+#endif
 
 infixl 4 <@, @>, <@@>, <@>, $>
 infixl 1 =>>
@@ -169,10 +172,12 @@ instance Comonad w => Comonad (IdentityT w) where
   extract = extract . runIdentityT
   {-# INLINE extract #-}
 
+#ifdef MIN_VERSION_containers
 instance Comonad Tree where
   duplicate w@(Node _ as) = Node w (map duplicate as)
   extract (Node a _) = a
   {-# INLINE extract #-}
+#endif
 
 instance Comonad NonEmpty where
   extend f w@ ~(_ :| aas) = f w :| case aas of
@@ -240,10 +245,12 @@ instance ComonadApply Identity where
 instance ComonadApply w => ComonadApply (IdentityT w) where
   IdentityT wa <@> IdentityT wb = IdentityT (wa <@> wb)
 
+#ifdef MIN_VERSION_containers
 instance ComonadApply Tree where
   (<@>) = (<*>)
   (<@ ) = (<* )
   ( @>) = ( *>)
+#endif
 
 -- | A suitable default definition for 'fmap' for a 'Comonad'.
 -- Promotes a function to a comonad.

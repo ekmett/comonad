@@ -20,9 +20,12 @@ module Data.Functor.Coproduct
   ) where
 
 import Control.Comonad
-import Data.Functor.Contravariant
 import Data.Foldable
 import Data.Traversable
+
+#ifdef MIN_VERSION_contravariant
+import Data.Functor.Contravariant
+#endif
 
 newtype Coproduct f g a = Coproduct { getCoproduct :: Either (f a) (g a) }
   deriving (Eq, Ord, Read, Show)
@@ -53,5 +56,7 @@ instance (Comonad f, Comonad g) => Comonad (Coproduct f g) where
     (Right . extend (f . Coproduct . Right))
   extract = coproduct extract extract
 
+#ifdef MIN_VERSION_contravariant
 instance (Contravariant f, Contravariant g) => Contravariant (Coproduct f g) where
   contramap f = Coproduct . coproduct (Left . contramap f) (Right . contramap f)
+#endif
