@@ -1,3 +1,7 @@
+4.2.1
+-----
+* Added flags that supply unsupported build modes that can be convenient for sandbox users.
+
 4.2
 ---
 * `transformers 0.4` compatibility
