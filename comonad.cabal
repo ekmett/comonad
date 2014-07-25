@@ -9,7 +9,7 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/comonad/
 bug-reports:   http://github.com/ekmett/comonad/issues
-copyright:     Copyright (C) 2008-2013 Edward A. Kmett,
+copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Comonads
 description:   Comonads

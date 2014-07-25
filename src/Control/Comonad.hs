@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
--- Copyright   :  (C) 2008-2012 Edward Kmett,
+-- Copyright   :  (C) 2008-2014 Edward Kmett,
 --                (C) 2004 Dave Menendez
 -- License     :  BSD-style (see the file LICENSE)
 --
