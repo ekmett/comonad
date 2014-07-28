@@ -1,3 +1,7 @@
+4.2.2
+-----
+* `contravariant` 1.0 support
+
 4.2.1
 -----
 * Added flags that supply unsupported build modes that can be convenient for sandbox users.
