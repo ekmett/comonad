@@ -16,7 +16,8 @@ script:
   - $script
   - hlint src --cpp-define HLINT
   - packdeps comonad.cabal
-  - packunused
+  - packunused --ignore-package=transformers-compat
+
 
 notifications:
   irc:
