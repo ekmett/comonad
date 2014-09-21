@@ -60,6 +60,7 @@ module Control.Comonad.Trans.Env
   , local
   ) where
 
+import Control.Applicative
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
@@ -145,6 +146,10 @@ instance Comonad w => Comonad (EnvT e w) where
 
 instance ComonadTrans (EnvT e) where
   lower (EnvT _ wa) = wa
+
+instance (Monoid e, Applicative m) => Applicative (EnvT e m) where
+  pure = EnvT mempty . pure
+  EnvT ef wf <*> EnvT ea wa = EnvT (ef `mappend` ea) (wf <*> wa)
 
 -- | Gets rid of the environment. This differs from 'extract' in that it will
 --   not continue extracting the value from the contained comonad.
