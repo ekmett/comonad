@@ -310,6 +310,10 @@ liftW3 :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftW3 f a b c = f <$> a <@> b <@> c
 {-# INLINE liftW3 #-}
 
+-- | Comonadic fixed point à la Foner
+efix :: (ComonadApply w) => w (w a -> a) -> w a
+efix f = fix $ (f <@>) . duplicate
+
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 #if __GLASGOW_HASKELL__ >= 707
