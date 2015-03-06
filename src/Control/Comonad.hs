@@ -9,7 +9,7 @@
  -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
--- Copyright   :  (C) 2008-2014 Edward Kmett,
+-- Copyright   :  (C) 2008-2015 Edward Kmett,
 --                (C) 2004 Dave Menendez
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -148,6 +148,16 @@ instance Comonad ((,)e) where
   {-# INLINE duplicate #-}
   extract = snd
   {-# INLINE extract #-}
+
+#if MIN_VERSION_semigroups(0,16,2)
+instance Comonad (Arg e) where
+  duplicate w@(Arg a _) = Arg a w
+  {-# INLINE duplicate #-}
+  extend f w@(Arg a _) = Arg a (f w)
+  {-# INLINE extend #-}
+  extract (Arg _ b) = b
+  {-# INLINE extract #-}
+#endif
 
 instance Monoid m => Comonad ((->)m) where
   duplicate f m = f . mappend m

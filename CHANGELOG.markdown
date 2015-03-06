@@ -1,3 +1,7 @@
+4.2.3
+-----
+* Add `Comonad` and `ComonadEnv` instances for `Arg e` from `semigroups 0.16.3` which can be used to extract the argmin or argmax.
+
 4.2.2
 -----
 * `contravariant` 1.0 support
