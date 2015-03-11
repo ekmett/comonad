@@ -24,6 +24,7 @@ module Control.Comonad (
   , liftW     -- :: Comonad w => (a -> b) -> w a -> w b
   , wfix      -- :: Comonad w => w (w a -> a) -> a
   , cfix      -- :: Comonad w => (w a -> a) -> w a
+  , kfix      -- :: ComonadApply w => w (w a -> a) -> w a
   , (=>=)
   , (=<=)
   , (<<=)
@@ -276,14 +277,21 @@ liftW :: Comonad w => (a -> b) -> w a -> w b
 liftW f = extend (f . extract)
 {-# INLINE liftW #-}
 
--- | Comonadic fixed point à la Menendez
+-- | Comonadic fixed point à la David Menendez
 wfix :: Comonad w => w (w a -> a) -> a
 wfix w = extract w (extend wfix w)
 
--- | Comonadic fixed point à la Orchard
+-- | Comonadic fixed point à la Dominic Orchard
 cfix :: Comonad w => (w a -> a) -> w a
 cfix f = fix (extend f)
 {-# INLINE cfix #-}
+
+-- | Comonadic fixed point à la Kenneth Foner
+--
+-- <https://www.youtube.com/watch?v=F7F-BzOB670>
+kfix :: ComonadApply w => w (w a -> a) -> w a
+kfix w = fix $ \u -> w <@> duplicate u
+{-# INLINE kfix #-}
 
 -- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
 (=>>) :: Comonad w => w a -> (w a -> b) -> w b

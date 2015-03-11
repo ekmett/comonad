@@ -1,3 +1,7 @@
+4.2.4
+-----
+* Added Kenneth Foner's fixed point as `kfix`.
+
 4.2.3
 -----
 * Add `Comonad` and `ComonadEnv` instances for `Arg e` from `semigroups 0.16.3` which can be used to extract the argmin or argmax.
