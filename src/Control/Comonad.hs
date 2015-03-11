@@ -286,9 +286,9 @@ cfix :: Comonad w => (w a -> a) -> w a
 cfix f = fix (extend f)
 {-# INLINE cfix #-}
 
--- | Comonadic fixed point à la Kenneth Foner
+-- | Comonadic fixed point à la Kenneth Foner:
 --
--- <https://www.youtube.com/watch?v=F7F-BzOB670>
+-- This is the @evaluate@ function from his <https://www.youtube.com/watch?v=F7F-BzOB670 "Getting a Quick Fix on Comonads"> talk.
 kfix :: ComonadApply w => w (w a -> a) -> w a
 kfix w = fix $ \u -> w <@> duplicate u
 {-# INLINE kfix #-}
