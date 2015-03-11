@@ -295,9 +295,9 @@
 <a name="line-286"></a><span class='hs-definition'>cfix</span> <span class='hs-varid'>f</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>fix</span> <span class='hs-layout'>(</span><span class='hs-varid'>extend</span> <span class='hs-varid'>f</span><span class='hs-layout'>)</span>
 <a name="line-287"></a><span class='hs-comment'>{-# INLINE cfix #-}</span>
 <a name="line-288"></a>
-<a name="line-289"></a><a name="kfix"></a><span class='hs-comment'>-- | Comonadic fixed point à la Kenneth Foner</span>
+<a name="line-289"></a><a name="kfix"></a><span class='hs-comment'>-- | Comonadic fixed point à la Kenneth Foner:</span>
 <a name="line-290"></a><span class='hs-comment'>--</span>
-<a name="line-291"></a><span class='hs-comment'>-- &lt;https://www.youtube.com/watch?v=F7F-BzOB670&gt;</span>
+<a name="line-291"></a><span class='hs-comment'>-- This is the @evaluate@ function from his &lt;https://www.youtube.com/watch?v=F7F-BzOB670 "Getting a Quick Fix on Comonads"&gt; talk.</span>
 <a name="line-292"></a><span class='hs-definition'>kfix</span> <span class='hs-keyglyph'>::</span> <span class='hs-conid'>ComonadApply</span> <span class='hs-varid'>w</span> <span class='hs-keyglyph'>=&gt;</span> <span class='hs-varid'>w</span> <span class='hs-layout'>(</span><span class='hs-varid'>w</span> <span class='hs-varid'>a</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>a</span><span class='hs-layout'>)</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>w</span> <span class='hs-varid'>a</span>
 <a name="line-293"></a><span class='hs-definition'>kfix</span> <span class='hs-varid'>w</span> <span class='hs-keyglyph'>=</span> <span class='hs-varid'>fix</span> <span class='hs-varop'>$</span> <span class='hs-keyglyph'>\</span><span class='hs-varid'>u</span> <span class='hs-keyglyph'>-&gt;</span> <span class='hs-varid'>w</span> <span class='hs-varop'>&lt;@&gt;</span> <span class='hs-varid'>duplicate</span> <span class='hs-varid'>u</span>
 <a name="line-294"></a><span class='hs-comment'>{-# INLINE kfix #-}</span>
