@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP #-}
 #if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, Safe #-}
+{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, Safe, DefaultSignatures #-}
 #elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Trustworthy, DefaultSignatures #-}
 #endif
  -----------------------------------------------------------------------------
 -- |
@@ -230,6 +230,10 @@ instance Comonad NonEmpty where
 
 class Comonad w => ComonadApply w where
   (<@>) :: w (a -> b) -> w a -> w b
+#if __GLASGOW_HASKELL__ >= 702
+  default (<@>) :: Applicative w => w (a -> b) -> w a -> w b
+  (<@>) = (<*>)
+#endif
 
   (@>) :: w a -> w b -> w b
   a @> b = const id <$> a <@> b
