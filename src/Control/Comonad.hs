@@ -143,6 +143,8 @@ class Functor w => Comonad w where
   extend :: (w a -> b) -> w a -> w b
   extend f = fmap f . duplicate
 
+  {-# MINIMAL extract, (duplicate | extend) #-}
+
 
 instance Comonad ((,)e) where
   duplicate p = (fst p, p)
