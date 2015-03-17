@@ -143,7 +143,9 @@ class Functor w => Comonad w where
   extend :: (w a -> b) -> w a -> w b
   extend f = fmap f . duplicate
 
+#if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL extract, (duplicate | extend) #-}
+#endif
 
 
 instance Comonad ((,)e) where
