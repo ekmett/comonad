@@ -1,3 +1,7 @@
+4.2.4.1
+-------
+* Added a `MINIMAL` pragma to `Comonad`.
+
 4.2.4
 -----
 * Added Kenneth Foner's fixed point as `kfix`.
