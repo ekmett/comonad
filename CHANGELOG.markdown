@@ -1,6 +1,7 @@
 4.2.5
 -------
 * Added a `MINIMAL` pragma to `Comonad`.
+* Added `DefaultSignatures` support for `ComonadApply` on GHC 7.2+
 
 4.2.4
 -----
