@@ -1,9 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 #if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE StandaloneDeriving, DeriveDataTypeable #-}
-#endif
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE StandaloneDeriving, DeriveDataTypeable, Safe #-}
+#elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
