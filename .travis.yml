@@ -9,7 +9,7 @@ before_install:
   - cabal install packdeps packunused
 
 install:
-  - cabal configure -flib-Werror $mode
+  - cabal configure $mode
   - cabal build --ghc-options=-ddump-minimal-imports
 
 script:
