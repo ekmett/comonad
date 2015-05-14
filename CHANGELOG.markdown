@@ -1,3 +1,7 @@
+4.2.6
+-----
+* Re-export `(Data.Functor.$>)` rather than supply our own on GHC 7.8+
+
 4.2.5
 -------
 * Added a `MINIMAL` pragma to `Comonad`.

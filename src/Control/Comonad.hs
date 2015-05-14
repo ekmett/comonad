@@ -41,6 +41,7 @@ module Control.Comonad (
   ) where
 
 -- import _everything_
+import Data.Functor
 import Control.Applicative
 import Control.Arrow
 import Control.Category
@@ -63,7 +64,7 @@ import Data.Typeable
 import Data.Tree
 #endif
 
-infixl 4 <@, @>, <@@>, <@>, $>
+infixl 4 <@, @>, <@@>, <@>
 infixl 1 =>>
 infixr 1 <<=, =<=, =>=
 
@@ -387,6 +388,12 @@ instance Monad (Cokleisli w a) where
   return = Cokleisli . const
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
 
+#if !(MIN_VERSION_base(4,7,0))
+
+infixl 4 $>
+
 -- | Replace the contents of a functor uniformly with a constant value.
 ($>) :: Functor f => f a -> b -> f b
 ($>) = flip (<$)
+
+#endif
