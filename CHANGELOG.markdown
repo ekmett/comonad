@@ -1,6 +1,8 @@
 4.2.6
 -----
 * Re-export `(Data.Functor.$>)` rather than supply our own on GHC 7.8+
+* Better SafeHaskell support.
+* `instance Monoid m => ComonadTraced m ((->) m)`
 
 4.2.5
 -------
