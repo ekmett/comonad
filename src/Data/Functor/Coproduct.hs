@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 #endif
 -----------------------------------------------------------------------------
 -- |

@@ -4,7 +4,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 #endif
 -----------------------------------------------------------------------------
 -- |
@@ -38,6 +38,9 @@ traces f wa = trace (f (extract wa)) wa
 
 instance (Comonad w, Monoid m) => ComonadTraced m (Traced.TracedT m w) where
   trace = Traced.trace
+
+instance Monoid m => ComonadTraced m ((->) m) where
+  trace m f = f m
 
 lowerTrace :: (ComonadTrans t, ComonadTraced m w) => m -> t w a -> a
 lowerTrace m = trace m . lower
