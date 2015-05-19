@@ -3,8 +3,12 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 704
+#if MIN_VERSION_transformers(0,3,0)
 {-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
 #endif
 -----------------------------------------------------------------------------
 -- |
