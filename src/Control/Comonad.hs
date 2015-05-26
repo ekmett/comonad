@@ -62,6 +62,8 @@ import Data.Typeable
 
 #ifdef MIN_VERSION_containers
 import Data.Tree
+import Data.Sequence (ViewL (..), ViewR (..))
+import qualified Data.Sequence as Seq (empty, (<|), (|>), viewl, viewr)
 #endif
 
 infixl 4 <@, @>, <@@>, <@>
@@ -191,6 +193,27 @@ instance Comonad Tree where
   duplicate w@(Node _ as) = Node w (map duplicate as)
   extract (Node a _) = a
   {-# INLINE extract #-}
+
+instance Comonad ViewL where
+  extract ~(x :< _) = x
+  {-# INLINE extract #-}
+  extend f w@ ~(_ :< xxs) =
+     f w :< case Seq.viewl xxs of
+              EmptyL -> Seq.empty
+              xs     -> case extend f xs of
+                          EmptyL  -> Seq.empty
+                          y :< ys -> y Seq.<| ys
+
+instance Comonad ViewR where
+  extract ~(_ :> x) = x
+  {-# INLINE extract #-}
+  extend f w@ ~(xxs :> _) =
+     (case Seq.viewr xxs of
+        EmptyR -> Seq.empty
+        xs     -> case extend f xs of
+                    EmptyR  -> Seq.empty
+                    ys :> y -> ys Seq.|> y
+     ) :> f w
 #endif
 
 instance Comonad NonEmpty where
