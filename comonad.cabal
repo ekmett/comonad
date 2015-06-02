@@ -118,6 +118,7 @@ test-suite doctests
   type:           exitcode-stdio-1.0
   default-language: Haskell2010
   main-is:        doctests.hs
+  other-modules:  Build_doctests
   ghc-options:    -Wall -threaded
   hs-source-dirs: tests
 
