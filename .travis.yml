@@ -21,6 +21,7 @@ before_install:
 
 install:
  - travis_retry cabal update
+ - ghc-pkg expose binary # It's hidden on old GHCs, for some reason
  - cabal install Cabal # Workaround for https://github.com/haskell/cabal/issues/1666
  - cabal install --enable-tests --only-dependencies
 
