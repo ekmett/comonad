@@ -1,3 +1,7 @@
+4.2.7.1
+-------
+* Use CPP
+
 4.2.7
 -----
 * `Trustworthy` fixes for GHC 7.2
