@@ -1,3 +1,7 @@
+4.2.7
+-----
+* `Trustworthy` fixes for GHC 7.2
+
 4.2.6
 -----
 * Re-export `(Data.Functor.$>)` rather than supply our own on GHC 7.8+
