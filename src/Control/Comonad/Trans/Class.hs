@@ -1,11 +1,15 @@
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE Safe #-}
+#elif __GLASGOW_HASKELL__ >= 704
+{-# LANGUAGE Trustworthy #-}
+#elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Safe #-}
 #endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Trans.Class
--- Copyright   :  (C) 2008-2011 Edward Kmett
+-- Copyright   :  (C) 2008-2015 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
