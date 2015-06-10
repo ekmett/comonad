@@ -29,6 +29,7 @@ import qualified Control.Comonad.Trans.Store as Store
 import Control.Comonad.Trans.Traced
 import Control.Comonad.Trans.Identity
 import Data.Semigroup
+import Prelude
 
 class Comonad w => ComonadStore s w | w -> s where
   pos :: w a -> s

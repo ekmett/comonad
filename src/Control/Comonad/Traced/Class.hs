@@ -28,6 +28,7 @@ import Control.Comonad.Trans.Store
 import qualified Control.Comonad.Trans.Traced as Traced
 import Control.Comonad.Trans.Identity
 import Data.Semigroup
+import Prelude
 
 class Comonad w => ComonadTraced m w | w -> m where
   trace :: m -> w a -> a

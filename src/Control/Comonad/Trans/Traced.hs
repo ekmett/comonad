@@ -47,6 +47,7 @@ import Control.Comonad.Trans.Class
 import Data.Functor.Identity
 import Data.Semigroup
 import Data.Typeable
+import Prelude
 
 #ifdef MIN_VERSION_distributive
 import Data.Distributive

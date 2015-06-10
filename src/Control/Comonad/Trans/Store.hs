@@ -81,6 +81,7 @@ import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
 import Data.Functor.Identity
 import Data.Semigroup
+import Prelude
 
 #ifdef __GLASGOW_HASKELL__
 import Data.Typeable

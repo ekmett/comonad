@@ -66,6 +66,7 @@ import Data.Foldable
 import Data.Traversable
 import Data.Functor.Identity
 import Data.Semigroup
+import Prelude
 
 #ifdef __GLASGOW_HASKELL__
 #if __GLASGOW_HASKELL__ >= 707

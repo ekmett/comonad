@@ -24,6 +24,7 @@ module Data.Functor.Coproduct
 import Control.Comonad
 import Data.Foldable
 import Data.Traversable
+import Prelude
 
 #ifdef MIN_VERSION_contravariant
 import Data.Functor.Contravariant
