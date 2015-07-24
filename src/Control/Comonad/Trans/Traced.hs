@@ -36,21 +36,31 @@ module Control.Comonad.Trans.Traced
   , censor
   ) where
 
+#if __GLASGOW_HASKELL__ < 710
 import Control.Applicative
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
+#endif
+
+#if __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
 #endif
+
 import Control.Monad (ap)
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
-import Data.Functor.Identity
-import Data.Semigroup
-import Data.Typeable
 
 #ifdef MIN_VERSION_distributive
 import Data.Distributive
 #endif
+
+import Data.Functor.Identity
+
+#if __GLASGOW_HASKELL__ < 710
+import Data.Semigroup
+#endif
+
+import Data.Typeable
+
 
 type Traced m = TracedT m Identity
 

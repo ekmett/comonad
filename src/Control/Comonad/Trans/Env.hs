@@ -62,8 +62,10 @@ module Control.Comonad.Trans.Env
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
+#if __GLASGOW_HASKELL__ < 710
 import Data.Foldable
 import Data.Traversable
+#endif
 import Data.Functor.Identity
 import Data.Semigroup
 

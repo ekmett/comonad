@@ -22,8 +22,10 @@ module Data.Functor.Coproduct
   ) where
 
 import Control.Comonad
+#if __GLASGOW_HASKELL__ < 710
 import Data.Foldable
 import Data.Traversable
+#endif
 
 #ifdef MIN_VERSION_contravariant
 import Data.Functor.Contravariant

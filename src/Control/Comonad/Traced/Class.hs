@@ -1,8 +1,8 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE CPP #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Safe #-}
 #endif
@@ -27,7 +27,9 @@ import Control.Comonad.Trans.Env
 import Control.Comonad.Trans.Store
 import qualified Control.Comonad.Trans.Traced as Traced
 import Control.Comonad.Trans.Identity
+#if __GLASGOW_HASKELL__ < 710
 import Data.Semigroup
+#endif
 
 class Comonad w => ComonadTraced m w | w -> m where
   trace :: m -> w a -> a

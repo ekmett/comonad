@@ -1,3 +1,7 @@
+4.2.7.2
+-------
+* Compiles warning-free on GHC 7.10
+
 4.2.7.1
 -------
 * Use CPP
