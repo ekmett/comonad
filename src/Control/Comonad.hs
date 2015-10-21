@@ -53,6 +53,7 @@ import Control.Monad.Instances
 #endif
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
+import qualified Data.Functor.Sum as FSum
 import Data.List.NonEmpty hiding (map)
 import Data.Semigroup hiding (Product)
 import Data.Tagged
@@ -199,6 +200,19 @@ instance Comonad NonEmpty where
       (a:as) -> toList (extend f (a :| as))
   extract ~(a :| _) = a
   {-# INLINE extract #-}
+
+coproduct :: (f a -> b) -> (g a -> b) -> FSum.Sum f g a -> b
+coproduct f _ (FSum.InL x) = f x
+coproduct _ g (FSum.InR y) = g y
+{-# INLINE coproduct #-}
+
+instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
+  extend f = coproduct
+               (FSum.InL . extend (f . FSum.InL))
+               (FSum.InR . extend (f . FSum.InR))
+  extract = coproduct extract extract
+  {-# INLINE extract #-}
+
 
 -- | @ComonadApply@ is to @Comonad@ like @Applicative@ is to @Monad@.
 --

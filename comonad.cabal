@@ -1,6 +1,6 @@
 name:          comonad
 category:      Control, Comonads
-version:       4.2.7.2
+version:       4.3
 license:       BSD3
 cabal-version: >= 1.10
 license-file:  LICENSE
@@ -14,7 +14,7 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
 synopsis:      Comonads
 description:   Comonads
 build-type:    Custom
-tested-with:   GHC==7.0.1, GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.1
+tested-with:   GHC==7.0.1, GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.2
 extra-source-files:
   .ghci
   .gitignore
@@ -103,7 +103,6 @@ library
     Control.Comonad.Trans.Store
     Control.Comonad.Trans.Traced
     Data.Functor.Composition
-    Data.Functor.Coproduct
 
   other-extensions:
     CPP
