@@ -89,7 +89,7 @@ instance (Comonad w, Monoid m) => Comonad (TracedT m w) where
 instance Monoid m => ComonadTrans (TracedT m) where
   lower = fmap ($ mempty) . runTracedT
 
-instance Monoid m => ComonadHoist (TracedT m) where
+instance ComonadHoist (TracedT m) where
   cohoist l = TracedT . l . runTracedT
 
 #ifdef MIN_VERSION_distributive
