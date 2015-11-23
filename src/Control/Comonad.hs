@@ -399,7 +399,7 @@ instance Applicative (Cokleisli w a) where
   Cokleisli f <*> Cokleisli a = Cokleisli (\w -> f w (a w))
 
 instance Monad (Cokleisli w a) where
-  return = Cokleisli . const
+  return = pure
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
 
 #if !(MIN_VERSION_base(4,7,0))
