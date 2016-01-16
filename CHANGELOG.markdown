@@ -1,10 +1,10 @@
-4.3
--------
+5
+-
 * Removed module `Data.Functor.Coproduct` in favor of the `transformers`
   package's `Data.Functor.Sum`. n.b. Compatibility with older versions of
   `transformers` is possible using `transformers-compat`.
-
 * Add `Comonad` instance for `Data.Functor.Sum.Sum`
+* GHC 8 compatibility
 
 4.2.7.2
 -------
