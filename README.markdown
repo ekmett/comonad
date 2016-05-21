@@ -20,10 +20,9 @@ I. Provide definitions for 'extract' and 'extend' satisfying these laws:
 
 In this case, you may simply set 'fmap' = 'liftW'.
 
-These laws are directly analogous to the laws for monads
-and perhaps can be made clearer by viewing them as laws stating
-that Cokleisli composition must be associative, and has extract for
-a unit:
+These laws are directly analogous to the laws for monads. The comonad laws can
+perhaps be made clearer by viewing them as stating that Cokleisli composition
+must be a) associative and b) have extract for a unit:
 
     f =>= extract   = f
     extract =>= f   = f
