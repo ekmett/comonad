@@ -45,7 +45,7 @@ In that case you must also satisfy these laws:
     duplicate = extend id
     fmap f    = extend (f . extract)
 
-These are the default definitions of `extend` and`duplicate` and
+These implementations are the default definitions of `extend` and`duplicate` and
 the definition of `liftW` respectively.
 
 Contact Information
