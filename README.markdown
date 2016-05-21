@@ -35,7 +35,7 @@ II. Alternately, you may choose to provide definitions for `fmap`,
     fmap extract . duplicate = id
     duplicate . duplicate    = fmap duplicate . duplicate
 
-In this case you may not rely on the ability to define `fmap` in
+In this case, you may not rely on the ability to define `fmap` in
 terms of `liftW`.
 
 You may of course, choose to define both `duplicate` /and/ `extend`.
