@@ -3,7 +3,8 @@ comonad
 
 [![Hackage](https://img.shields.io/hackage/v/comonad.svg)](https://hackage.haskell.org/package/comonad) [![Build Status](https://secure.travis-ci.org/ekmett/comonad.png?branch=master)](http://travis-ci.org/ekmett/comonad)
 
-This package provides comonads, the categorical dual of monads.
+This package provides comonads, the categorical dual of monads. The typeclass
+provides three methods:  `extract`, `duplicate`, and `extend`.
 
     class Functor w => Comonad w where
         extract :: w a -> a
