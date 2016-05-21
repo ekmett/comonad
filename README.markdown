@@ -40,7 +40,7 @@ In this case, you may not rely on the ability to define `fmap` in
 terms of `liftW`.
 
 You may, of course, choose to define both `duplicate` /and/ `extend`.
-In that case you must also satisfy these laws:
+In that case, you must also satisfy these laws:
 
     extend f  = fmap f . duplicate
     duplicate = extend id
