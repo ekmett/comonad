@@ -94,6 +94,7 @@ script:
  # this builds all libraries and executables
  # (including tests/benchmarks)
  - cabal build
+ - cabal test
 
  # tests that a source-distribution can be generated
  - cabal sdist
