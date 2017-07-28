@@ -1,3 +1,7 @@
+next
+----
+* Support `doctest-0.12`
+
 5.0.1
 -----
 * Revamp `Setup.hs` to use `cabal-doctest`. This makes it build
