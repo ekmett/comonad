@@ -82,7 +82,9 @@ import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
 import Data.Functor.Identity
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
+#endif
 
 #ifdef __GLASGOW_HASKELL__
 import Data.Typeable

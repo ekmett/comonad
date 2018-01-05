@@ -73,7 +73,9 @@ import Data.Foldable
 import Data.Traversable
 #endif
 import Data.Functor.Identity
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
+#endif
 
 #ifdef __GLASGOW_HASKELL__
 #if __GLASGOW_HASKELL__ >= 707
