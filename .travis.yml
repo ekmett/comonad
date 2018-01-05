@@ -148,7 +148,7 @@ script:
 
   # haddock
   - rm -rf ./dist-newstyle
-  - if $HADDOCK; then cabal new-haddock -w ${HC} ${TEST} ${BENCH} all; else echo "Skipping haddock generation";fi
+  - if [ $HADDOCK && "${HC}" != "ghc-7.6.3" ]; then cabal new-haddock -w ${HC} ${TEST} ${BENCH} all; else echo "Skipping haddock generation";fi
 
 # REGENDATA ["-o",".travis.yml","--irc-channel=irc.freenode.org#haskell-lens","comonad.cabal"]
 # EOF
