@@ -12,7 +12,7 @@ bug-reports:   http://github.com/ekmett/comonad/issues
 copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Comonads
-description:   Comonads
+description:   Comonads.
 build-type:    Custom
 tested-with:   GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.1
 extra-source-files:

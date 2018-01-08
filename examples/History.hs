@@ -2,12 +2,13 @@
 {-# OPTIONS_GHC -Wall #-}
 
 -- http://www.mail-archive.com/haskell@haskell.org/msg17244.html
+module History where
 
-import Prelude hiding (id,(.),sum)
 import Control.Category
 import Control.Comonad
 import Data.Foldable hiding (sum)
 import Data.Traversable
+import Prelude hiding (id,(.),sum)
 
 infixl 4 :>
 
