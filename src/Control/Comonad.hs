@@ -4,6 +4,9 @@
 #elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy, DefaultSignatures #-}
 #endif
+#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE PolyKinds #-}
+#endif
  -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
@@ -176,6 +179,14 @@ instance Comonad Identity where
   extract = runIdentity
   {-# INLINE extract #-}
 
+#if __GLASGOW_HASKELL__ >= 706
+-- $
+-- The variable `s` can have any kind.
+-- For example, here it has kind `Bool`:
+-- >>> :set -XDataKinds
+-- >>> extract (Tagged 42 :: Tagged 'True Integer)
+-- 42
+#endif
 instance Comonad (Tagged s) where
   duplicate = Tagged
   {-# INLINE duplicate #-}

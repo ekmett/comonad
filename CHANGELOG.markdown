@@ -1,3 +1,8 @@
+next
+----
+* Add `Comonad` instances for `Tagged s` with `s` of any kind. Before the
+  change, `s` had to be of kind `*`.
+
 5.0.3 [2018.02.06]
 ------------------
 * Don't enable `Safe` on GHC 7.2.
