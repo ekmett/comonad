@@ -14,7 +14,7 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
 synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
-tested-with:   GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.1
+tested-with:   GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.2
 
 source-repository head
   type: git
