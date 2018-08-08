@@ -1,3 +1,7 @@
+Next
+----
+* Raised the minimum `semigroups` version to 0.16.2.
+
 5.0.4 [2018.07.01]
 ------------------
 * Add `Comonad` instances for `Tagged s` with `s` of any kind. Before the

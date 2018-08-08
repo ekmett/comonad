@@ -157,7 +157,6 @@ instance Comonad ((,)e) where
   extract = snd
   {-# INLINE extract #-}
 
-#if MIN_VERSION_semigroups(0,16,2)
 instance Comonad (Arg e) where
   duplicate w@(Arg a _) = Arg a w
   {-# INLINE duplicate #-}
@@ -165,7 +164,6 @@ instance Comonad (Arg e) where
   {-# INLINE extend #-}
   extract (Arg _ b) = b
   {-# INLINE extract #-}
-#endif
 
 instance Monoid m => Comonad ((->)m) where
   duplicate f m = f . mappend m
