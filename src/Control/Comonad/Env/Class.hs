@@ -44,10 +44,8 @@ instance Comonad w => ComonadEnv e (Env.EnvT e w) where
 instance ComonadEnv e ((,)e) where
   ask = fst
 
-#if MIN_VERSION_semigroups(0,16,2)
 instance ComonadEnv e (Arg e) where
   ask (Arg e _) = e
-#endif
 
 lowerAsk :: (ComonadEnv e w, ComonadTrans t) => t w a -> e
 lowerAsk = ask . lower

@@ -1,3 +1,8 @@
+Next
+----
+* Raised the minimum `semigroups` version to 0.16.2. In addition, the
+  package will only be required at all for GHCs before 8.0.
+
 5.0.4 [2018.07.01]
 ------------------
 * Add `Comonad` instances for `Tagged s` with `s` of any kind. Before the
