@@ -79,11 +79,13 @@ library
   ghc-options: -Wall
 
   build-depends:
-    base                >= 4       && < 5,
-    semigroups          >= 0.16.2  && < 1,
-    tagged              >= 0.7     && < 1,
-    transformers        >= 0.2     && < 0.6,
-    transformers-compat >= 0.3     && < 1
+    base                >= 4   && < 5,
+    tagged              >= 0.7 && < 1,
+    transformers        >= 0.2 && < 0.6,
+    transformers-compat >= 0.3 && < 1
+
+  if !impl(ghc >= 8.0)
+    build-depends: semigroups >= 0.16.2 && < 1
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
