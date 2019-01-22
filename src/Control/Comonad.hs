@@ -296,8 +296,8 @@ instance ComonadApply Tree where
 -- | A suitable default definition for 'fmap' for a 'Comonad'.
 -- Promotes a function to a comonad.
 --
--- You can only safely use to define 'fmap' if your 'Comonad'
--- defined 'extend', not just 'duplicate', since defining
+-- You can only safely use 'liftW' to define 'fmap' if your 'Comonad'
+-- defines 'extend', not just 'duplicate', since defining
 -- 'extend' in terms of duplicate uses 'fmap'!
 --
 -- @
