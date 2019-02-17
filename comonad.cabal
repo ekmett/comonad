@@ -46,17 +46,6 @@ flag containers
   default: True
   manual: True
 
-flag contravariant
-  description:
-    You can disable the use of the `contravariant` package using `-f-contravariant`.
-    .
-    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
-    .
-    If disabled we will not supply instances of `Contravariant`
-    .
-  default: True
-  manual: True
-
 flag distributive
   description:
     You can disable the use of the `distributive` package using `-f-distributive`.
@@ -89,9 +78,6 @@ library
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
-
-  if flag(contravariant)
-    build-depends: contravariant >= 0.2.0.1 && < 2
 
   if flag(distributive)
     build-depends: distributive >= 0.2.2   && < 1
