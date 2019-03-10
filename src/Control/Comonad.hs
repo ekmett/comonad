@@ -238,12 +238,6 @@ instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
 -- 'duplicate' (p '<@>' q) = ('<@>') '<$>' 'duplicate' p '<@>' 'duplicate' q
 -- @
 --
--- If our type is both a 'ComonadApply' and 'Applicative' we further require
---
--- @
--- ('<*>') = ('<@>')
--- @
---
 -- Finally, if you choose to define ('<@') and ('@>'), the results of your
 -- definitions should match the following laws:
 --
@@ -271,7 +265,7 @@ instance Semigroup m => ComonadApply ((,)m) where
   (m, _)  @> (n, b) = (m <> n, b)
 
 instance ComonadApply NonEmpty where
-  (<@>) = ap
+  (<@>) = Data.List.NonEmpty.zipWith ($)
 
 instance Monoid m => ComonadApply ((->)m) where
   (<@>) = (<*>)
