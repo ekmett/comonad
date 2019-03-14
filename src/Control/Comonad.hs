@@ -248,10 +248,6 @@ instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
 
 class Comonad w => ComonadApply w where
   (<@>) :: w (a -> b) -> w a -> w b
-#if __GLASGOW_HASKELL__ >= 702
-  default (<@>) :: Applicative w => w (a -> b) -> w a -> w b
-  (<@>) = (<*>)
-#endif
 
   (@>) :: w a -> w b -> w b
   a @> b = const id <$> a <@> b
