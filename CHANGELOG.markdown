@@ -2,6 +2,8 @@ Next
 ----
 * Raised the minimum `semigroups` version to 0.16.2. In addition, the
   package will only be required at all for GHCs before 8.0.
+* Drop the `contravariant` flag from `comonad.cabal`, as `comonad` no longer
+  depends on the `contravariant` library.
 
 5.0.4 [2018.07.01]
 ------------------
