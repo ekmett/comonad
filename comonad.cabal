@@ -28,13 +28,13 @@ tested-with:   GHC == 7.0.4
 extra-source-files:
   .ghci
   .gitignore
+  .hlint.yaml
   .travis.yml
   .vim.custom
   coq/Store.v
   README.markdown
   CHANGELOG.markdown
   examples/History.hs
-  HLint.hs
   Warning.hs
 
 custom-setup
