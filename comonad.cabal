@@ -13,7 +13,7 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
                Copyright (C) 2004-2008 Dave Menendez
 synopsis:      Comonads
 description:   Comonads.
-build-type:    Custom
+build-type:    Simple
 tested-with:   GHC == 7.0.4
              , GHC == 7.2.2
              , GHC == 7.4.2
@@ -36,12 +36,6 @@ extra-source-files:
   CHANGELOG.markdown
   examples/History.hs
   Warning.hs
-
-custom-setup
-  setup-depends:
-    base          >= 4 && < 5,
-    Cabal,
-    cabal-doctest >= 1 && < 1.1
 
 -- You can disable the doctests test suite with -f-test-doctests
 flag test-doctests
