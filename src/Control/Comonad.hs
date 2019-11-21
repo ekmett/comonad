@@ -204,7 +204,8 @@ instance Comonad Tree where
 #endif
 
 instance Comonad NonEmpty where
-  extend f w@ ~(_ :| aas) = f w :| case aas of
+  extend f w@(~(_ :| aas)) =
+    f w :| case aas of
       []     -> []
       (a:as) -> toList (extend f (a :| as))
   extract ~(a :| _) = a
