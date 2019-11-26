@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Achieve forward compatibility with
+  [GHC proposal 229](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0229-whitespace-bang-patterns.rst).
+
 5.0.5 [2019.05.02]
 ------------------
 * Raised the minimum `semigroups` version to 0.16.2. In addition, the
