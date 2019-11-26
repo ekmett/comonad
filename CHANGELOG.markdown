@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.0.6 [2019.11.26]
+------------------
 * Achieve forward compatibility with
   [GHC proposal 229](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0229-whitespace-bang-patterns.rst).
 
