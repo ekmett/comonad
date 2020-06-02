@@ -131,4 +131,4 @@ test-suite doctests
     build-depends:
       base,
       comonad,
-      doctest >= 0.11.1 && < 0.17
+      doctest >= 0.11.1 && < 0.18
