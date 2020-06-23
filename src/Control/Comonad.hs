@@ -239,12 +239,6 @@ instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
 -- 'duplicate' (p '<@>' q) = ('<@>') '<$>' 'duplicate' p '<@>' 'duplicate' q
 -- @
 --
--- If our type is both a 'ComonadApply' and 'Applicative' we further require
---
--- @
--- ('<*>') = ('<@>')
--- @
---
 -- Finally, if you choose to define ('<@') and ('@>'), the results of your
 -- definitions should match the following laws:
 --
@@ -255,10 +249,6 @@ instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
 
 class Comonad w => ComonadApply w where
   (<@>) :: w (a -> b) -> w a -> w b
-#if __GLASGOW_HASKELL__ >= 702
-  default (<@>) :: Applicative w => w (a -> b) -> w a -> w b
-  (<@>) = (<*>)
-#endif
 
   (@>) :: w a -> w b -> w b
   a @> b = const id <$> a <@> b
@@ -272,7 +262,7 @@ instance Semigroup m => ComonadApply ((,)m) where
   (m, _)  @> (n, b) = (m <> n, b)
 
 instance ComonadApply NonEmpty where
-  (<@>) = ap
+  (<@>) = Data.List.NonEmpty.zipWith ($)
 
 instance Monoid m => ComonadApply ((->)m) where
   (<@>) = (<*>)
@@ -288,10 +278,22 @@ instance ComonadApply w => ComonadApply (IdentityT w) where
   IdentityT wa <@> IdentityT wb = IdentityT (wa <@> wb)
 
 #ifdef MIN_VERSION_containers
+-- for this implementation the author has defined an intermediate '<.>'
+-- suggestive of the dot-product-like behaviour. He hopes people
+-- that know better than he will consider it as a standard in
+-- place of <@> especially if it makes sense for numerical
+-- vectors and matrices to have (*) <$> a <.> b for dot product
+-- and (*) <$> a <*> b for cross product and that <*> should always
+-- be the cross-product form
 instance ComonadApply Tree where
-  (<@>) = (<*>)
-  (<@ ) = (<* )
-  ( @>) = ( *>)
+  ~(Node a as) <@> ~(Node b bs) = Node (a b) (liftBranchesW2 (<@>) as bs)
+    -- here, '<.>' is the zippy apply for things that don't have extract
+    -- it's a dot product v.s. the cross product '<*>'
+    where (<.>) = Prelude.zipWith ($) -- but it's not yet a standard feature of any class
+                                      -- so I'm giving it the list implementation directly
+                                      -- just for this instance
+          infixl 4 <.>
+          liftBranchesW2 f a b = f <$> a <.> b
 #endif
 
 -- | A suitable default definition for 'fmap' for a 'Comonad'.
