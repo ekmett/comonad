@@ -1,3 +1,8 @@
+5.0.7 [2020.xx.yy]
+------------------
+* Move `FunctorWithIndex (TracedT m w)` instance from `lens`.
+  This instance depends on the `indexed-traversable` package. This can be disabled using the flag of the same name.
+
 5.0.6 [2019.11.26]
 ------------------
 * Achieve forward compatibility with
