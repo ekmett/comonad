@@ -4,6 +4,9 @@
 #elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
+#ifdef MIN_VERSION_indexed_traversable
+{-# LANGUAGE MultiParamTypeClasses, UndecidableInstances #-}
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Trans.Traced
@@ -53,6 +56,10 @@ import Control.Comonad.Trans.Class
 import Data.Distributive
 #endif
 
+#ifdef MIN_VERSION_indexed_traversable
+import Data.Functor.WithIndex
+#endif
+
 import Data.Functor.Identity
 
 #if __GLASGOW_HASKELL__ < 710
@@ -95,6 +102,12 @@ instance ComonadHoist (TracedT m) where
 #ifdef MIN_VERSION_distributive
 instance Distributive w => Distributive (TracedT m w) where
   distribute = TracedT . fmap (\tma m -> fmap ($ m) tma) . collect runTracedT
+#endif
+
+#ifdef MIN_VERSION_indexed_traversable
+instance FunctorWithIndex i w => FunctorWithIndex (s, i) (TracedT s w) where
+  imap f (TracedT w) = TracedT $ imap (\k' g k -> f (k, k') (g k)) w
+  {-# INLINE imap #-}
 #endif
 
 trace :: Comonad w => m -> TracedT m w a -> a
