@@ -90,6 +90,7 @@ import Data.Semigroup
 import Data.Typeable
 
 -- $setup
+-- >>> import Control.Comonad
 -- >>> import Data.Tuple (swap)
 
 #if __GLASGOW_HASKELL__ >= 707

@@ -83,6 +83,9 @@ import Data.Semigroup
 #endif
 import Data.Data
 
+-- $setup
+-- >>> import Control.Comonad
+
 #if __GLASGOW_HASKELL__ >= 707
 deriving instance Typeable EnvT
 #else
