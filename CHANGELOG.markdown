@@ -1,3 +1,7 @@
+next [202y.mm.dd]
+-----------------
+* Explicitly mark modules as Safe or Trustworthy
+
 5.0.7 [2020.12.15]
 ------------------
 * Move `FunctorWithIndex (TracedT m w)` instance from `lens`.
