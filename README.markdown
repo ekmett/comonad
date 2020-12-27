@@ -1,7 +1,7 @@
 comonad
 =======
 
-[![Hackage](https://img.shields.io/hackage/v/comonad.svg)](https://hackage.haskell.org/package/comonad) [![Build Status](https://secure.travis-ci.org/ekmett/comonad.svg?branch=master)](http://travis-ci.org/ekmett/comonad)
+[![Build Status](https://github.com/ekmett/comonad/workflows/Haskell-CI/badge.svg)](https://github.com/ekmett/comonad/actions?query=workflow%3AHaskell-CI)
 
 This package provides comonads, the categorical dual of monads. The typeclass
 provides three methods:  `extract`, `duplicate`, and `extend`.
