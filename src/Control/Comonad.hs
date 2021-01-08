@@ -182,6 +182,7 @@ instance Comonad Identity where
 -- The variable `s` can have any kind.
 -- For example, here it has kind `Bool`:
 -- >>> :set -XDataKinds
+-- >>> import Data.Tagged
 -- >>> extract (Tagged 42 :: Tagged 'True Integer)
 -- 42
 #endif
