@@ -3,6 +3,8 @@
 * Invert dependency between `comonad` and `distributive`
 * Drop support for GHC < 8.6
 * Add `Generic`, `Generic1` instances where possible
+* Stop exporting `Control.Comonad` from all the `Control.Comonad.Foo` modules
+  to match style with the upcoming `mtl` release.
 
 5.0.8 [202y.mm.dd]
 -----------------

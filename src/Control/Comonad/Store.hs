@@ -18,12 +18,7 @@ module Control.Comonad.Store
 -- * The StoreT comonad transformer
 , StoreT(..)
 , runStoreT
--- * Re-exported modules
-, module Control.Comonad
-, module Control.Comonad.Trans.Class
 ) where
 
-import Control.Comonad
 import Control.Comonad.Store.Class (ComonadStore(..))
-import Control.Comonad.Trans.Class
 import Control.Comonad.Trans.Store (Store, store, runStore, StoreT(..), runStoreT)

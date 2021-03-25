@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE Safe #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -243,7 +242,7 @@ class Comonad w => ComonadApply w where
   (<@>) = (<*>)
 
   (@>) :: w a -> w b -> w b
-  a @> b = const id <$> a <@> b
+  a @> b = id <$ a <@> b
 
   (<@) :: w a -> w b -> w a
   a <@ b = const <$> a <@> b
