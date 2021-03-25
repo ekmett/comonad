@@ -1,17 +1,13 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE Safe #-}
------------------------------------------------------------------------------
+
 -- |
--- Module      :  Control.Comonad.Trans.Store
 -- Copyright   :  (C) 2008-2013 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
---
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
 -- Portability :  portable
---
 --
 -- The store comonad holds a constant value along with a modifiable /accessor/
 -- function, which maps the /stored value/ to the /focus/.
@@ -59,24 +55,25 @@
 --
 -- Thanks go to Russell O'Connor and Daniel Peebles for their help formulating
 -- and proving the laws for this comonad transformer.
-----------------------------------------------------------------------------
+
 module Control.Comonad.Trans.Store
-  (
-  -- * The Store comonad
-    Store, store, runStore
-  -- * The Store comonad transformer
-  , StoreT(..), runStoreT
-  -- * Operations
-  , pos
-  , seek, seeks
-  , peek, peeks
-  , experiment
-  ) where
+(
+-- * The Store comonad
+  Store, store, runStore
+-- * The Store comonad transformer
+, StoreT(..), runStoreT
+-- * Operations
+, pos
+, seek, seeks
+, peek, peeks
+, experiment
+) where
 
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
 import Data.Functor.Identity
+import GHC.Generics
 
 type Store s = StoreT s Identity
 
@@ -88,6 +85,7 @@ runStore :: Store s a -> (s -> a, s)
 runStore (StoreT (Identity f) s) = (f, s)
 
 data StoreT s w a = StoreT (w (s -> a)) s
+  deriving (Generic, Generic1)
 
 runStoreT :: StoreT s w a -> (w (s -> a), s)
 runStoreT (StoreT wf s) = (wf, s)

@@ -91,6 +91,7 @@ library
     CPP
     DefaultSignatures
     DeriveDataTypeable
+    DeriveGeneric
     FlexibleContexts
     FlexibleInstances
     FunctionalDependencies

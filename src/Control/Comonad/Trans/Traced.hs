@@ -1,16 +1,15 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE Safe #-}
 #ifdef MIN_VERSION_indexed_traversable
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 #endif
------------------------------------------------------------------------------
+
 -- |
--- Module      :  Control.Comonad.Trans.Traced
 -- Copyright   :  (C) 2008-2014 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
---
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
 -- Portability :  portable
@@ -20,22 +19,21 @@
 --
 -- This module specifies the traced comonad transformer (aka the cowriter or
 -- exponential comonad transformer).
---
-----------------------------------------------------------------------------
+
 module Control.Comonad.Trans.Traced
-  (
-  -- * Traced comonad
-    Traced
-  , traced
-  , runTraced
-  -- * Traced comonad transformer
-  , TracedT(..)
-  -- * Operations
-  , trace
-  , listen
-  , listens
-  , censor
-  ) where
+(
+-- * Traced comonad
+  Traced
+, traced
+, runTraced
+-- * Traced comonad transformer
+, TracedT(..)
+-- * Operations
+, trace
+, listen
+, listens
+, censor
+) where
 
 import Control.Monad (ap)
 import Control.Comonad
@@ -47,6 +45,8 @@ import Data.Functor.Identity
 import Data.Functor.WithIndex
 #endif
 
+import GHC.Generics
+
 type Traced m = TracedT m Identity
 
 traced :: (m -> a) -> Traced m a
@@ -56,6 +56,7 @@ runTraced :: Traced m a -> m -> a
 runTraced (TracedT (Identity f)) = f
 
 newtype TracedT m w a = TracedT { runTracedT :: w (m -> a) }
+  deriving (Generic, Generic1)
 
 instance Functor w => Functor (TracedT m w) where
   fmap g = TracedT . fmap (g .) . runTracedT

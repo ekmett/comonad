@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE Safe #-}
@@ -37,31 +39,34 @@
 -- >>> extract initialRestored
 -- 0
 module Control.Comonad.Trans.Env
-  (
-  -- * The strict environment comonad
-    Env
-  , env
-  , runEnv
-  -- * The strict environment comonad transformer
-  , EnvT(..)
-  , runEnvT
-  , lowerEnvT
-  -- * Combinators
-  , ask
-  , asks
-  , local
-  ) where
+(
+-- * The strict environment comonad
+  Env
+, env
+, runEnv
+-- * The strict environment comonad transformer
+, EnvT(..)
+, runEnvT
+, lowerEnvT
+-- * Combinators
+, ask
+, asks
+, local
+) where
 
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
+import Data.Data
 import Data.Functor.Identity
+import GHC.Generics
 
 -- $setup
 -- >>> import Control.Comonad
 
 type Env e = EnvT e Identity
 data EnvT e w a = EnvT e (w a)
+  deriving (Generic, Generic1, Data)
 
 -- | Create an Env using an environment and a value
 env :: e -> a -> Env e a

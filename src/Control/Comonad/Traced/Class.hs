@@ -1,22 +1,20 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE Safe #-}
------------------------------------------------------------------------------
+
 -- |
 -- Module      :  Control.Comonad.Traced.Class
 -- Copyright   :  (C) 2008-2012 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
---
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
 -- Portability :  non-portable (fundeps, MPTCs)
-----------------------------------------------------------------------------
+
 module Control.Comonad.Traced.Class
-  ( ComonadTraced(..)
-  , traces
-  ) where
+( ComonadTraced(..)
+, traces
+) where
 
 import Control.Comonad
 import Control.Comonad.Trans.Class

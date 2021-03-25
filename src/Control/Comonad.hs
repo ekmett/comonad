@@ -2,6 +2,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE Safe #-}
 {-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE PolyKinds #-}
  -----------------------------------------------------------------------------
 -- |
@@ -45,14 +46,15 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
+import Control.Monad.Fix
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import qualified Data.Functor.Sum as FSum
 import Data.List.NonEmpty hiding (map)
 import Data.Semigroup hiding (Product)
 import Data.Tagged
+import GHC.Generics
 import Prelude hiding (id, (.))
-import Control.Monad.Fix
 
 #ifdef MIN_VERSION_containers
 import Data.Tree
@@ -345,6 +347,7 @@ liftW3 f a b c = f <$> a <@> b <@> c
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
+  deriving (Generic, Generic1)
 
 instance Comonad w => Category (Cokleisli w) where
   id = Cokleisli extract

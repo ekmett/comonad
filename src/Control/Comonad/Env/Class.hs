@@ -2,7 +2,6 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Safe #-}
 -- |
 -- Copyright   :  (C) 2008-2015 Edward Kmett
@@ -11,9 +10,9 @@
 -- Stability   :  experimental
 -- Portability :  non-portable (fundeps, MPTCs)
 module Control.Comonad.Env.Class
-  ( ComonadEnv(..)
-  , asks
-  ) where
+( ComonadEnv(..)
+, asks
+) where
 
 import Control.Comonad
 import Control.Comonad.Trans.Class

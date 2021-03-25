@@ -1,15 +1,16 @@
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Safe #-}
+
 -- |
 -- Copyright   :  (C) 2008-2013 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
 -- Portability :  portable
+
 module Control.Comonad.Hoist.Class
-  ( ComonadHoist(cohoist)
-  ) where
+( ComonadHoist(cohoist)
+) where
 
 import Control.Comonad
 import Control.Monad.Trans.Identity
