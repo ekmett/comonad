@@ -2,8 +2,8 @@ cabal-version: 2.2
 name:          comonad
 category:      Control, Comonads
 version:       5.1
-license:       BSD-2-Clause
-license-file:  LICENSE
+license:       BSD-2-Clause OR Apache-2.0
+license-file:  LICENSE.md
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
@@ -22,8 +22,8 @@ extra-source-files:
   .hlint.yaml
   .vim.custom
   coq/Store.v
-  README.markdown
-  CHANGELOG.markdown
+  README.md
+  CHANGELOG.md
   examples/History.hs
 
 flag containers

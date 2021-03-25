@@ -1,9 +1,9 @@
+cabal-version: 2.2
 name:          comonad-examples
 category:      Control, Comonads
-version:       0.1
-license:       BSD3
-cabal-version: >= 1.10
-license-file:  LICENSE
+version:       0.2
+license:       BSD-2-Clause OR Apache-2.0
+license-file:  LICENSE.md
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
@@ -14,22 +14,14 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
 synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
-tested-with:   GHC == 7.0.4
-             , GHC == 7.2.2
-             , GHC == 7.4.2
-             , GHC == 7.6.3
-             , GHC == 7.8.4
-             , GHC == 7.10.3
-             , GHC == 8.0.2
-             , GHC == 8.2.2
-             , GHC == 8.4.4
-             , GHC == 8.6.5
+tested-with:   GHC == 8.6.5
              , GHC == 8.8.3
              , GHC == 8.10.1
 
 source-repository head
   type: git
   location: git://github.com/ekmett/comonad.git
+  subdir: examples
 
 library
   hs-source-dirs: .
@@ -40,5 +32,5 @@ library
     History
 
   build-depends:
-    base    >= 4 && < 5,
-    comonad == 5.1.*
+    , base    >= 4 && < 5
+    , comonad ^>= 5.1
