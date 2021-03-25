@@ -33,4 +33,4 @@ library
 
   build-depends:
     , base    >= 4 && < 5
-    , comonad ^>= 5.1
+    , comonad ^>= 6

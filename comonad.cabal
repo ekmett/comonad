@@ -1,7 +1,7 @@
 cabal-version: 2.2
 name:          comonad
 category:      Control, Comonads
-version:       5.1
+version:       6
 license:       BSD-2-Clause OR Apache-2.0
 license-file:  LICENSE.md
 author:        Edward A. Kmett
