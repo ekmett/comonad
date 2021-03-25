@@ -57,11 +57,7 @@ library
   build-depends:
     , base                >= 4   && < 5
     , tagged              >= 0.8.6.1 && < 1
-    , transformers        >= 0.3 && < 0.6
-    , transformers-compat >= 0.5 && < 1
-
-  if !impl(ghc >= 8.0)
-    build-depends: semigroups >= 0.18.5 && < 1
+    , transformers        >= 0.5 && < 0.6
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
@@ -93,8 +89,15 @@ library
 
   other-extensions:
     CPP
-    RankNTypes
-    MultiParamTypeClasses
-    FunctionalDependencies
+    DefaultSignatures
+    DeriveDataTypeable
+    FlexibleContexts
     FlexibleInstances
+    FunctionalDependencies
+    MultiParamTypeClasses
+    PolyKinds
+    RankNTypes
+    Safe
+    StandaloneDeriving
+    Trustworthy
     UndecidableInstances

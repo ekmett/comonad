@@ -1,9 +1,7 @@
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE StandaloneDeriving, DeriveDataTypeable, Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE Safe #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Trans.Store
@@ -75,48 +73,10 @@ module Control.Comonad.Trans.Store
   , experiment
   ) where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
 import Data.Functor.Identity
-#if !(MIN_VERSION_base(4,11,0))
-import Data.Semigroup
-#endif
-
-#ifdef __GLASGOW_HASKELL__
-import Data.Typeable
-
--- $setup
--- >>> import Control.Comonad
--- >>> import Data.Tuple (swap)
-
-#if __GLASGOW_HASKELL__ >= 707
-deriving instance Typeable StoreT
-#else
-instance (Typeable s, Typeable1 w) => Typeable1 (StoreT s w) where
-  typeOf1 dswa = mkTyConApp storeTTyCon [typeOf (s dswa), typeOf1 (w dswa)]
-    where
-      s :: StoreT s w a -> s
-      s = undefined
-      w :: StoreT s w a -> w a
-      w = undefined
-
-instance (Typeable s, Typeable1 w, Typeable a) => Typeable (StoreT s w a) where
-  typeOf = typeOfDefault
-
-storeTTyCon :: TyCon
-#if __GLASGOW_HASKELL__ < 704
-storeTTyCon = mkTyCon "Control.Comonad.Trans.Store.StoreT"
-#else
-storeTTyCon = mkTyCon3 "comonad-transformers" "Control.Comonad.Trans.Store" "StoreT"
-#endif
-{-# NOINLINE storeTTyCon #-}
-#endif
-
-#endif
 
 type Store s = StoreT s Identity
 

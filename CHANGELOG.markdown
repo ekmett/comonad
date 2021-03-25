@@ -1,3 +1,8 @@
+5.1
+---
+* Invert dependency between `comonad` and `distributive`
+* Drop support for GHC < 8.6
+
 5.0.8 [202y.mm.dd]
 -----------------
 * Explicitly mark modules as Safe or Trustworthy
