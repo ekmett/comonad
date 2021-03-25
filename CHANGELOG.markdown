@@ -2,6 +2,7 @@
 ---
 * Invert dependency between `comonad` and `distributive`
 * Drop support for GHC < 8.6
+* Add `Generic`, `Generic1` instances where possible
 
 5.0.8 [202y.mm.dd]
 -----------------
