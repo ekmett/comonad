@@ -1,14 +1,8 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-#if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
------------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Store.Class
 -- Copyright   :  (C) 2008-2012 Edward Kmett
@@ -17,7 +11,6 @@
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
 -- Portability :  non-portable (fundeps, MPTCs)
-----------------------------------------------------------------------------
 module Control.Comonad.Store.Class
   ( ComonadStore(..)
   , lowerPos
@@ -30,9 +23,6 @@ import Control.Comonad.Trans.Env
 import qualified Control.Comonad.Trans.Store as Store
 import Control.Comonad.Trans.Traced
 import Control.Comonad.Trans.Identity
-#if __GLASGOW_HASKELL__ < 710
-import Data.Semigroup
-#endif
 
 class Comonad w => ComonadStore s w | w -> s where
   pos :: w a -> s

@@ -1,8 +1,8 @@
+cabal-version: 2.2
 name:          comonad
 category:      Control, Comonads
-version:       5.0.8
-license:       BSD3
-cabal-version: >= 1.10
+version:       5.1
+license:       BSD-2-Clause
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
@@ -14,16 +14,7 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
 synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
-tested-with:   GHC == 7.0.4
-             , GHC == 7.2.2
-             , GHC == 7.4.2
-             , GHC == 7.6.3
-             , GHC == 7.8.4
-             , GHC == 7.10.3
-             , GHC == 8.0.2
-             , GHC == 8.2.2
-             , GHC == 8.4.4
-             , GHC == 8.6.5
+tested-with:   GHC == 8.6.5
              , GHC == 8.8.3
              , GHC == 8.10.1
 extra-source-files:
@@ -43,17 +34,6 @@ flag containers
   default: True
   manual: True
 
-flag distributive
-  description:
-    You can disable the use of the `distributive` package using `-f-distributive`.
-    .
-    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
-    .
-    If disabled we will not supply instances of `Distributive`
-    .
-  default: True
-  manual: True
-
 flag indexed-traversable
   description:
     You can disable the use of the `indexed-traversable` package using `-f-indexed-traversable`.
@@ -65,7 +45,6 @@ flag indexed-traversable
   default: True
   manual: True
 
-
 source-repository head
   type: git
   location: git://github.com/ekmett/comonad.git
@@ -76,19 +55,16 @@ library
   ghc-options: -Wall
 
   build-depends:
-    base                >= 4   && < 5,
-    tagged              >= 0.8.6.1 && < 1,
-    transformers        >= 0.3 && < 0.6,
-    transformers-compat >= 0.5 && < 1
+    , base                >= 4   && < 5
+    , tagged              >= 0.8.6.1 && < 1
+    , transformers        >= 0.3 && < 0.6
+    , transformers-compat >= 0.5 && < 1
 
   if !impl(ghc >= 8.0)
     build-depends: semigroups >= 0.18.5 && < 1
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
-
-  if flag(distributive)
-    build-depends: distributive >= 0.5.2 && < 1
 
   if flag(indexed-traversable)
     build-depends: indexed-traversable >= 0.1.1 && < 0.2

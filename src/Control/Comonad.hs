@@ -1,16 +1,12 @@
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE DeriveDataTypeable, StandaloneDeriving, Safe, DefaultSignatures #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy, DefaultSignatures #-}
-#endif
-#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE PolyKinds #-}
-#endif
  -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad
--- Copyright   :  (C) 2008-2015 Edward Kmett,
+-- Copyright   :  (C) 2008-2021 Edward Kmett,
 --                (C) 2004 Dave Menendez
 -- License     :  BSD-style (see the file LICENSE)
 --
@@ -49,11 +45,6 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
-#if MIN_VERSION_base(4,7,0)
--- Control.Monad.Instances is empty
-#else
-import Control.Monad.Instances
-#endif
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
 import qualified Data.Functor.Sum as FSum
@@ -62,7 +53,6 @@ import Data.Semigroup hiding (Product)
 import Data.Tagged
 import Prelude hiding (id, (.))
 import Control.Monad.Fix
-import Data.Typeable
 
 #ifdef MIN_VERSION_containers
 import Data.Tree
@@ -146,10 +136,7 @@ class Functor w => Comonad w where
   extend :: (w a -> b) -> w a -> w b
   extend f = fmap f . duplicate
 
-#if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL extract, (duplicate | extend) #-}
-#endif
-
 
 instance Comonad ((,)e) where
   duplicate p = (fst p, p)
@@ -177,7 +164,6 @@ instance Comonad Identity where
   extract = runIdentity
   {-# INLINE extract #-}
 
-#if __GLASGOW_HASKELL__ >= 706
 -- $
 -- The variable `s` can have any kind.
 -- For example, here it has kind `Bool`:
@@ -185,7 +171,6 @@ instance Comonad Identity where
 -- >>> import Data.Tagged
 -- >>> extract (Tagged 42 :: Tagged 'True Integer)
 -- 42
-#endif
 instance Comonad (Tagged s) where
   duplicate = Tagged
   {-# INLINE duplicate #-}
@@ -256,10 +241,8 @@ instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
 
 class Comonad w => ComonadApply w where
   (<@>) :: w (a -> b) -> w a -> w b
-#if __GLASGOW_HASKELL__ >= 702
   default (<@>) :: Applicative w => w (a -> b) -> w a -> w b
   (<@>) = (<*>)
-#endif
 
   (@>) :: w a -> w b -> w b
   a @> b = const id <$> a <@> b
@@ -362,24 +345,6 @@ liftW3 f a b c = f <$> a <@> b <@> c
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
 newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
-#if __GLASGOW_HASKELL__ >= 707
-  deriving Typeable
-#else
-#ifdef __GLASGOW_HASKELL__
-instance Typeable1 w => Typeable2 (Cokleisli w) where
-  typeOf2 twab = mkTyConApp cokleisliTyCon [typeOf1 (wa twab)]
-        where wa :: Cokleisli w a b -> w a
-              wa = undefined
-#endif
-
-cokleisliTyCon :: TyCon
-#if MIN_VERSION_base(4,4,0)
-cokleisliTyCon = mkTyCon3 "comonad" "Control.Comonad" "Cokleisli"
-#else
-cokleisliTyCon = mkTyCon "Control.Comonad.Cokleisli"
-#endif
-{-# NOINLINE cokleisliTyCon #-}
-#endif
 
 instance Comonad w => Category (Cokleisli w) where
   id = Cokleisli extract
@@ -412,13 +377,3 @@ instance Applicative (Cokleisli w a) where
 instance Monad (Cokleisli w a) where
   return = pure
   Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
-
-#if !(MIN_VERSION_base(4,7,0))
-
-infixl 4 $>
-
--- | Replace the contents of a functor uniformly with a constant value.
-($>) :: Functor f => f a -> b -> f b
-($>) = flip (<$)
-
-#endif

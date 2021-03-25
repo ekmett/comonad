@@ -1,20 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
------------------------------------------------------------------------------
 -- |
--- Module      :  Control.Comonad.Hoist.Class
 -- Copyright   :  (C) 2008-2013 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
---
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
 -- Portability :  portable
-----------------------------------------------------------------------------
 module Control.Comonad.Hoist.Class
   ( ComonadHoist(cohoist)
   ) where
