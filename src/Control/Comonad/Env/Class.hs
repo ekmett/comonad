@@ -3,12 +3,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE Safe #-}
+
 -- |
 -- Copyright   :  (C) 2008-2015 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
 -- Portability :  non-portable (fundeps, MPTCs)
+
 module Control.Comonad.Env.Class
 ( ComonadEnv(..)
 , asks

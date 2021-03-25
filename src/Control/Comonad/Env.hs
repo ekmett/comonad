@@ -16,22 +16,23 @@
 -- @
 -- (a -> e -> m) ~ (a, e) -> m ~ 'Env' e a -> m
 -- @
-module Control.Comonad.Env (
-  -- * ComonadEnv class
-    ComonadEnv(..)
-  , asks
-  , local
-  -- * The Env comonad
-  , Env
-  , env
-  , runEnv
-  -- * The EnvT comonad transformer
-  , EnvT(..)
-  , runEnvT
-  -- * Re-exported modules
-  , module Control.Comonad
-  , module Control.Comonad.Trans.Class
-  ) where
+module Control.Comonad.Env
+(
+-- * ComonadEnv class
+  ComonadEnv(..)
+, asks
+, local
+-- * The Env comonad
+, Env
+, env
+, runEnv
+-- * The EnvT comonad transformer
+, EnvT(..)
+, runEnvT
+-- * Re-exported modules
+, module Control.Comonad
+, module Control.Comonad.Trans.Class
+) where
 
 import Control.Comonad
 import Control.Comonad.Env.Class (ComonadEnv(..), asks)

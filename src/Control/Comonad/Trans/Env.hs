@@ -38,6 +38,7 @@
 -- >>> let initialRestored = experiment =>> ask
 -- >>> extract initialRestored
 -- 0
+
 module Control.Comonad.Trans.Env
 (
 -- * The strict environment comonad

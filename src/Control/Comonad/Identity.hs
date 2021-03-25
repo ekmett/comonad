@@ -8,11 +8,11 @@
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
 -- Portability :  non-portable (fundeps, MPTCs)
-module Control.Comonad.Identity (
-    module Control.Comonad
-  , module Data.Functor.Identity
-  , module Control.Comonad.Trans.Identity
-  ) where
+module Control.Comonad.Identity
+( module Control.Comonad
+, module Data.Functor.Identity
+, module Control.Comonad.Trans.Identity
+) where
 
 import Control.Comonad
 import Data.Functor.Identity

@@ -1,8 +1,7 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 -- |
 -- Copyright   :  (C) 2008-2012 Edward Kmett
@@ -12,10 +11,10 @@
 -- Portability :  non-portable (fundeps, MPTCs)
 
 module Control.Comonad.Store.Class
-  ( ComonadStore(..)
-  , lowerPos
-  , lowerPeek
-  ) where
+( ComonadStore(..)
+, lowerPos
+, lowerPeek
+) where
 
 import Control.Comonad
 import Control.Comonad.Trans.Class

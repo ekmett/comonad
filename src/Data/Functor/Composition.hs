@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+
 module Data.Functor.Composition
 ( Composition(..)
 ) where
