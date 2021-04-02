@@ -74,6 +74,10 @@ import Control.Comonad.Trans.Class
 import Data.Functor.Identity
 import GHC.Generics
 
+-- $setup
+-- >>> import Control.Comonad
+-- >>> import Data.Tuple (swap)
+
 type Store s = StoreT s Identity
 
 -- | Create a Store using an accessor function and a stored value

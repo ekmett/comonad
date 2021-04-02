@@ -15,8 +15,9 @@ synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
 tested-with:   GHC == 8.6.5
-             , GHC == 8.8.3
-             , GHC == 8.10.1
+             , GHC == 8.8.4
+             , GHC == 8.10.4
+             , GHC == 9.0.1
 extra-source-files:
   .gitignore
   .hlint.yaml
@@ -55,7 +56,7 @@ library
   ghc-options: -Wall
 
   build-depends:
-    , base                >= 4   && < 5
+    , base                >= 4.12 && < 5
     , tagged              >= 0.8.6.1 && < 1
     , transformers        >= 0.5 && < 0.6
 

@@ -15,8 +15,9 @@ synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
 tested-with:   GHC == 8.6.5
-             , GHC == 8.8.3
-             , GHC == 8.10.1
+             , GHC == 8.8.4
+             , GHC == 8.10.4
+             , GHC == 9.0.1
 
 source-repository head
   type: git
@@ -32,5 +33,5 @@ library
     History
 
   build-depends:
-    , base    >= 4 && < 5
+    , base    >= 4.12 && < 5
     , comonad ^>= 6
