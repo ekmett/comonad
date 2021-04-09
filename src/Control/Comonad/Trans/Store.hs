@@ -86,44 +86,44 @@ pattern Store :: (s -> a) -> s -> Store s a
 pattern Store f s = StoreT (Identity f) s
 
 runStore :: Store s a -> (s -> a, s)
-runStore (StoreT (Identity f) s) = (f, s)
+runStore = \(StoreT (Identity f) s) -> (f, s)
 {-# inline runStore #-}
 
 data StoreT s w a = StoreT (w (s -> a)) s
   deriving (Generic, Generic1)
 
 runStoreT :: StoreT s w a -> (w (s -> a), s)
-runStoreT (StoreT wf s) = (wf, s)
+runStoreT = \(StoreT wf s) -> (wf, s)
 {-# inline runStoreT #-}
 
 instance Functor w => Functor (StoreT s w) where
-  fmap f (StoreT wf s) = StoreT (fmap (f .) wf) s
+  fmap = \f (StoreT wf s) -> StoreT (fmap (f .) wf) s
   {-# inline fmap #-}
 
 instance (ComonadApply w, Semigroup s) => ComonadApply (StoreT s w) where
-  StoreT ff m <@> StoreT fa n = StoreT ((<*>) <$> ff <@> fa) (m <> n)
+  (<@>) = \(StoreT ff m) (StoreT fa n) -> StoreT ((<*>) <$> ff <@> fa) (m <> n)
   {-# inline (<@>) #-}
 
 instance (Applicative w, Monoid s) => Applicative (StoreT s w) where
-  pure a = StoreT (pure (const a)) mempty
+  pure = \a -> StoreT (pure (const a)) mempty
   {-# inline pure #-}
-  StoreT ff m <*> StoreT fa n = StoreT ((<*>) <$> ff <*> fa) (mappend m n)
+  (<*>) = \(StoreT ff m) (StoreT fa n) -> StoreT ((<*>) <$> ff <*> fa) (mappend m n)
   {-# inline (<*>) #-}
 
 instance Comonad w => Comonad (StoreT s w) where
-  duplicate (StoreT wf s) = StoreT (extend StoreT wf) s
-  extend f (StoreT wf s) = StoreT (extend (\wf' s' -> f (StoreT wf' s')) wf) s
-  extract (StoreT wf s) = extract wf s
+  duplicate = \(StoreT wf s) -> StoreT (extend StoreT wf) s
+  extend = \f (StoreT wf s) -> StoreT (extend (\wf' s' -> f (StoreT wf' s')) wf) s
+  extract = \(StoreT wf s) -> extract wf s
   {-# inline duplicate #-}
   {-# inline extend #-}
   {-# inline extract #-}
 
 instance ComonadTrans (StoreT s) where
-  lower (StoreT f s) = fmap ($ s) f
+  lower = \(StoreT f s) -> fmap ($ s) f
   {-# inline lower #-}
 
 instance ComonadHoist (StoreT s) where
-  cohoist l (StoreT f s) = StoreT (l f) s
+  cohoist = \l (StoreT f s) -> StoreT (l f) s
   {-# inline cohoist #-}
 
 -- | Read the stored value
@@ -132,7 +132,7 @@ instance ComonadHoist (StoreT s) where
 -- (1,5)
 --
 pos :: StoreT s w a -> s
-pos (StoreT _ s) = s
+pos = \(StoreT _ s) -> s
 {-# inline pos #-}
 
 -- | Set the stored value
@@ -144,7 +144,7 @@ pos (StoreT _ s) = s
 --
 -- > seek s = peek s . duplicate
 seek :: s -> StoreT s w a -> StoreT s w a
-seek s ~(StoreT f _) = StoreT f s
+seek = \s ~(StoreT f _) -> StoreT f s
 {-# inline seek #-}
 
 -- | Modify the stored value
@@ -156,7 +156,7 @@ seek s ~(StoreT f _) = StoreT f s
 --
 -- > seeks f = peeks f . duplicate
 seeks :: (s -> s) -> StoreT s w a -> StoreT s w a
-seeks f ~(StoreT g s) = StoreT g (f s)
+seeks = \f ~(StoreT g s) -> StoreT g (f s)
 {-# inline seeks #-}
 
 -- | Peek at what the current focus would be for a different stored value
@@ -165,14 +165,14 @@ seeks f ~(StoreT g s) = StoreT g (f s)
 --
 -- > peek x . extend (peek y) = peek y
 peek :: Comonad w => s -> StoreT s w a -> a
-peek s (StoreT g _) = extract g s
+peek = \s (StoreT g _) -> extract g s
 {-# inline peek #-}
 
 
 -- | Peek at what the current focus would be if the stored value was
 --   modified by some function
 peeks :: Comonad w => (s -> s) -> StoreT s w a -> a
-peeks f ~(StoreT g s) = extract g (f s)
+peeks = \f ~(StoreT g s) -> extract g (f s)
 {-# inline peeks #-}
 
 -- | Applies a functor-valued function to the stored value, and then uses the
@@ -184,5 +184,5 @@ peeks f ~(StoreT g s) = extract g (f s)
 --   >>> experiment f $ store (+1) (-2)
 --   Nothing
 experiment :: (Comonad w, Functor f) => (s -> f s) -> StoreT s w a -> f a
-experiment f (StoreT wf s) = extract wf <$> f s
+experiment = \f (StoreT wf s) -> extract wf <$> f s
 {-# inline experiment #-}

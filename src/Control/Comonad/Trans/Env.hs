@@ -74,68 +74,68 @@ pattern Env :: e -> a -> Env e a
 pattern Env e a = EnvT e (Identity a)
 
 runEnv :: Env e a -> (e, a)
-runEnv (EnvT e (Identity a)) = (e, a)
+runEnv = \(EnvT e (Identity a)) -> (e, a)
 {-# inline runEnv #-}
 
 runEnvT :: EnvT e w a -> (e, w a)
-runEnvT (EnvT e wa) = (e, wa)
+runEnvT = \(EnvT e wa) -> (e, wa)
 {-# inline runEnvT #-}
 
 instance Functor w => Functor (EnvT e w) where
-  fmap g (EnvT e wa) = EnvT e (fmap g wa)
+  fmap = \g (EnvT e wa) -> EnvT e (fmap g wa)
   {-# inline fmap #-}
 
 instance Comonad w => Comonad (EnvT e w) where
-  duplicate (EnvT e wa) = EnvT e (extend (EnvT e) wa)
-  extract (EnvT _ wa) = extract wa
+  duplicate = \(EnvT e wa) -> EnvT e (extend (EnvT e) wa)
+  extract = \(EnvT _ wa) -> extract wa
   {-# inline duplicate #-}
   {-# inline extract #-}
 
 instance ComonadTrans (EnvT e) where
-  lower (EnvT _ wa) = wa
+  lower = \(EnvT _ wa) -> wa
   {-# inline lower #-}
 
 instance (Monoid e, Applicative m) => Applicative (EnvT e m) where
   pure = EnvT mempty . pure
   {-# inline pure #-}
-  EnvT ef wf <*> EnvT ea wa = EnvT (ef `mappend` ea) (wf <*> wa)
+  (<*>) = \(EnvT ef wf) (EnvT ea wa) -> EnvT (ef `mappend` ea) (wf <*> wa)
   {-# inline (<*>) #-}
 
 -- | Gets rid of the environment. This differs from 'extract' in that it will
 --   not continue extracting the value from the contained comonad.
 lowerEnvT :: EnvT e w a -> w a
-lowerEnvT (EnvT _ wa) = wa
+lowerEnvT = \(EnvT _ wa) -> wa
 {-# inline lowerEnvT #-}
 
 instance ComonadHoist (EnvT e) where
-  cohoist l (EnvT e wa) = EnvT e (l wa)
+  cohoist = \l (EnvT e wa) -> EnvT e (l wa)
   {-# inline cohoist #-}
 
 instance (Semigroup e, ComonadApply w) => ComonadApply (EnvT e w) where
-  EnvT ef wf <@> EnvT ea wa = EnvT (ef <> ea) (wf <@> wa)
+  (<@>) = \(EnvT ef wf) (EnvT ea wa) -> EnvT (ef <> ea) (wf <@> wa)
   {-# inline (<@>) #-}
 
 instance Foldable w => Foldable (EnvT e w) where
-  foldMap f (EnvT _ w) = foldMap f w
+  foldMap = \f (EnvT _ w) -> foldMap f w
   {-# inline foldMap #-}
 
 instance Traversable w => Traversable (EnvT e w) where
-  traverse f (EnvT e w) = EnvT e <$> traverse f w
+  traverse = \f (EnvT e w) -> EnvT e <$> traverse f w
   {-# inline traverse #-}
 
 -- | Retrieves the environment.
 ask :: EnvT e w a -> e
-ask (EnvT e _) = e
+ask = \(EnvT e _) -> e
 {-# inline ask #-}
 
 -- | Like 'ask', but modifies the resulting value with a function.
 --
 --   > asks = f . ask
 asks :: (e -> f) -> EnvT e w a -> f
-asks f (EnvT e _) = f e
+asks = \f (EnvT e _) -> f e
 {-# inline asks #-}
 
 -- | Modifies the environment using the specified function.
 local :: (e -> e') -> EnvT e w a -> EnvT e' w a
-local f (EnvT e wa) = EnvT (f e) wa
+local = \f (EnvT e wa) -> EnvT (f e) wa
 {-# inline local #-}

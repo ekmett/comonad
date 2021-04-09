@@ -2,6 +2,7 @@
 {-# LANGUAGE Safe #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE PolyKinds #-}
 
 -- |
@@ -131,29 +132,29 @@ class Functor w => Comonad w where
   -- 'extend' f = 'fmap' f . 'duplicate'
   -- @
   extend :: (w a -> b) -> w a -> w b
-  extend f = fmap f . duplicate
+  extend = \f -> fmap f . duplicate
   {-# inline extend #-}
 
   {-# MINIMAL extract, (duplicate | extend) #-}
 
 instance Comonad ((,) e) where
-  duplicate p = (fst p, p)
+  duplicate = \p -> (fst p, p)
   {-# inline duplicate #-}
   extract = snd
   {-# inline extract #-}
 
 instance Comonad (Arg e) where
-  duplicate w@(Arg a _) = Arg a w
+  duplicate = \w@(Arg a _) -> Arg a w
   {-# inline duplicate #-}
-  extend f w@(Arg a _) = Arg a (f w)
+  extend = \f w@(Arg a _) -> Arg a (f w)
   {-# inline extend #-}
-  extract (Arg _ b) = b
+  extract = \(Arg _ b) -> b
   {-# inline extract #-}
 
 instance Monoid m => Comonad ((->)m) where
-  duplicate f m = f . mappend m
+  duplicate = \f m -> f . mappend m
   {-# inline duplicate #-}
-  extract f = f mempty
+  extract = \f -> f mempty
   {-# inline extract #-}
 
 instance Comonad Identity where
@@ -176,35 +177,36 @@ instance Comonad (Tagged s) where
   {-# inline extract #-}
 
 instance Comonad w => Comonad (IdentityT w) where
-  extend f (IdentityT m) = IdentityT (extend (f . IdentityT) m)
+  extend = \f (IdentityT m) -> IdentityT (extend (f . IdentityT) m)
   {-# inline extend #-}
   extract = extract . runIdentityT
   {-# inline extract #-}
 
 #ifdef MIN_VERSION_containers
 instance Comonad Tree where
-  duplicate w@(Node _ as) = Node w (map duplicate as)
+  duplicate = \w@(Node _ as) -> Node w (map duplicate as)
   {-# inline duplicate #-}
   extract (Node a _) = a
   {-# inline extract #-}
 #endif
 
 instance Comonad NonEmpty where
-  extend f w@(~(_ :| aas)) =
+  extend = \f w@(~(_ :| aas)) ->
     f w :| case aas of
       []     -> []
       (a:as) -> toList (extend f (a :| as))
   {-# inline extend #-}
-  extract ~(a :| _) = a
+  extract = \ ~(a :| _) -> a
   {-# inline extract #-}
 
 coproduct :: (f a -> b) -> (g a -> b) -> FSum.Sum f g a -> b
-coproduct f _ (FSum.InL x) = f x
-coproduct _ g (FSum.InR y) = g y
+coproduct = \f g -> \case
+  FSum.InL x -> f x
+  FSum.InR y -> g y
 {-# inline coproduct #-}
 
 instance (Comonad f, Comonad g) => Comonad (FSum.Sum f g) where
-  extend f = coproduct
+  extend = \f -> coproduct
                (FSum.InL . extend (f . FSum.InL))
                (FSum.InR . extend (f . FSum.InR))
   {-# inline extend #-}
@@ -247,18 +249,18 @@ class Comonad w => ComonadApply w where
   (<@>) = (<*>)
 
   (@>) :: w a -> w b -> w b
-  a @> b = id <$ a <@> b
+  (@>) = \a b -> id <$ a <@> b
 
   (<@) :: w a -> w b -> w a
-  a <@ b = const <$> a <@> b
+  (<@) = \a b -> const <$> a <@> b
   {-# inline (<@>) #-}
   {-# inline (@>) #-}
   {-# inline (<@) #-}
 
 instance Semigroup m => ComonadApply ((,)m) where
-  (m, f) <@> (n, a) = (m <> n, f a)
-  (m, a) <@  (n, _) = (m <> n, a)
-  (m, _)  @> (n, b) = (m <> n, b)
+  (<@>) = \(m, f) (n, a) -> (m <> n, f a)
+  (<@) = \(m, a) (n, _) -> (m <> n, a)
+  (@>) = \(m, _) (n, b) -> (m <> n, b)
   {-# inline (<@>) #-}
   {-# inline (@>) #-}
   {-# inline (<@) #-}
@@ -288,7 +290,7 @@ instance ComonadApply Identity where
   {-# inline (<@) #-}
 
 instance ComonadApply w => ComonadApply (IdentityT w) where
-  IdentityT wa <@> IdentityT wb = IdentityT (wa <@> wb)
+  (<@>) = \(IdentityT wa) (IdentityT wb) -> IdentityT (wa <@> wb)
   {-# inline (<@>) #-}
 
 #ifdef MIN_VERSION_containers
@@ -312,23 +314,23 @@ instance ComonadApply Tree where
 -- 'fmap' f = 'liftW' f = 'extend' (f . 'extract')
 -- @
 liftW :: Comonad w => (a -> b) -> w a -> w b
-liftW f = extend (f . extract)
+liftW = \f -> extend (f . extract)
 {-# inline liftW #-}
 
 -- | Comonadic fixed point à la David Menendez
 wfix :: Comonad w => w (w a -> a) -> a
-wfix w = extract w (extend wfix w)
+wfix = \w -> extract w (extend wfix w)
 
 -- | Comonadic fixed point à la Dominic Orchard
 cfix :: Comonad w => (w a -> a) -> w a
-cfix f = fix (extend f)
+cfix = \f -> fix (extend f)
 {-# inline cfix #-}
 
 -- | Comonadic fixed point à la Kenneth Foner:
 --
 -- This is the @evaluate@ function from his <https://www.youtube.com/watch?v=F7F-BzOB670 "Getting a Quick Fix on Comonads"> talk.
 kfix :: ComonadApply w => w (w a -> a) -> w a
-kfix w = fix $ \u -> w <@> duplicate u
+kfix = \w -> fix $ \u -> w <@> duplicate u
 {-# inline kfix #-}
 
 -- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
@@ -343,12 +345,12 @@ kfix w = fix $ \u -> w <@> duplicate u
 
 -- | Right-to-left 'Cokleisli' composition
 (=<=) :: Comonad w => (w b -> c) -> (w a -> b) -> w a -> c
-f =<= g = f . extend g
+(=<=) = \f g -> f . extend g
 {-# inline (=<=) #-}
 
 -- | Left-to-right 'Cokleisli' composition
 (=>=) :: Comonad w => (w a -> b) -> (w b -> c) -> w a -> c
-f =>= g = g . extend f
+(=>=) = \f g -> g . extend f
 {-# inline (=>=) #-}
 
 -- | A variant of '<@>' with the arguments reversed.
@@ -358,12 +360,12 @@ f =>= g = g . extend f
 
 -- | Lift a binary function into a 'Comonad' with zipping
 liftW2 :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
-liftW2 f a b = f <$> a <@> b
+liftW2 = \f a b -> f <$> a <@> b
 {-# inline liftW2 #-}
 
 -- | Lift a ternary function into a 'Comonad' with zipping
 liftW3 :: ComonadApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-liftW3 f a b c = f <$> a <@> b <@> c
+liftW3 = \f a b c -> f <$> a <@> b <@> c
 {-# inline liftW3 #-}
 
 -- | The 'Cokleisli' 'Arrow's of a given 'Comonad'
@@ -373,19 +375,19 @@ newtype Cokleisli w a b = Cokleisli { runCokleisli :: w a -> b }
 instance Comonad w => Category (Cokleisli w) where
   id = Cokleisli extract
   {-# inline id #-}
-  Cokleisli f . Cokleisli g = Cokleisli (f =<= g)
+  (.) = \(Cokleisli f) (Cokleisli g) -> Cokleisli (f =<= g)
   {-# inline (.) #-}
 
 instance Comonad w => Arrow (Cokleisli w) where
-  arr f = Cokleisli (f . extract)
+  arr = \f -> Cokleisli (f . extract)
   {-# inline arr #-}
-  first f = f *** id
+  first = \f -> f *** id
   {-# inline first #-}
-  second f = id *** f
+  second = \f -> id *** f
   {-# inline second #-}
-  Cokleisli f *** Cokleisli g = Cokleisli (f . fmap fst &&& g . fmap snd)
+  (***) = \(Cokleisli f) (Cokleisli g) -> Cokleisli (f . fmap fst &&& g . fmap snd)
   {-# inline (***) #-}
-  Cokleisli f &&& Cokleisli g = Cokleisli (f &&& g)
+  (&&&) = \(Cokleisli f) (Cokleisli g) -> Cokleisli (f &&& g)
   {-# inline (&&&) #-}
 
 instance Comonad w => ArrowApply (Cokleisli w) where
@@ -397,20 +399,21 @@ instance Comonad w => ArrowChoice (Cokleisli w) where
   {-# inline left #-}
 
 instance ComonadApply w => ArrowLoop (Cokleisli w) where
-  loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where
-    f' wa wb = f ((,) <$> wa <@> (snd <$> wb))
+  loop = \(Cokleisli f) -> 
+    let f' wa wb = f ((,) <$> wa <@> (snd <$> wb)) in
+    Cokleisli (fst . wfix . extend f')
   {-# inline loop #-}
 
 instance Functor (Cokleisli w a) where
-  fmap f (Cokleisli g) = Cokleisli (f . g)
+  fmap = \f (Cokleisli g) -> Cokleisli (f . g)
   {-# inline fmap #-}
 
 instance Applicative (Cokleisli w a) where
   pure = Cokleisli . const
   {-# inline pure #-}
-  Cokleisli f <*> Cokleisli a = Cokleisli (\w -> f w (a w))
+  (<*>) = \(Cokleisli f) (Cokleisli a) -> Cokleisli (\w -> f w (a w))
   {-# inline (<*>) #-}
 
 instance Monad (Cokleisli w a) where
-  Cokleisli k >>= f = Cokleisli $ \w -> runCokleisli (f (k w)) w
+  (>>=) = \(Cokleisli k) f -> Cokleisli $ \w -> runCokleisli (f (k w)) w
   {-# inline (>>=) #-}
