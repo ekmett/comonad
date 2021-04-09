@@ -28,26 +28,32 @@ class Comonad w => ComonadEnv e w | w -> e where
 
 asks :: ComonadEnv e w => (e -> e') -> w a -> e'
 asks f wa = f (ask wa)
-{-# INLINE asks #-}
+{-# inline asks #-}
 
 instance Comonad w => ComonadEnv e (Env.EnvT e w) where
   ask = Env.ask
+  {-# inline ask #-}
 
 instance ComonadEnv e ((,)e) where
   ask = fst
+  {-# inline ask #-}
 
 instance ComonadEnv e (Arg e) where
   ask (Arg e _) = e
+  {-# inline ask #-}
 
 lowerAsk :: (ComonadEnv e w, ComonadTrans t) => t w a -> e
 lowerAsk = ask . lower
-{-# INLINE lowerAsk #-}
+{-# inline lowerAsk #-}
 
 instance ComonadEnv e w => ComonadEnv e (StoreT t w) where
   ask = lowerAsk
+  {-# inline ask #-}
 
 instance ComonadEnv e w => ComonadEnv e (IdentityT w) where
   ask = lowerAsk
+  {-# inline ask #-}
 
 instance (ComonadEnv e w, Monoid m) => ComonadEnv e (TracedT m w) where
   ask = lowerAsk
+  {-# inline ask #-}

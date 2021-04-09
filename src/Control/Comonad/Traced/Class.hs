@@ -4,7 +4,7 @@
 {-# LANGUAGE Safe #-}
 
 -- |
--- Copyright   :  (C) 2008-2012 Edward Kmett
+-- Copyright   :  (C) 2008-2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
@@ -27,25 +27,30 @@ class Comonad w => ComonadTraced m w | w -> m where
 
 traces :: ComonadTraced m w => (a -> m) -> w a -> a
 traces f wa = trace (f (extract wa)) wa
-{-# INLINE traces #-}
+{-# inline traces #-}
 
 instance (Comonad w, Monoid m) => ComonadTraced m (Traced.TracedT m w) where
   trace = Traced.trace
+  {-# inline trace #-}
 
 instance Monoid m => ComonadTraced m ((->) m) where
   trace m f = f m
+  {-# inline trace #-}
 
 lowerTrace :: (ComonadTrans t, ComonadTraced m w) => m -> t w a -> a
 lowerTrace m = trace m . lower
-{-# INLINE lowerTrace #-}
+{-# inline lowerTrace #-}
 
 -- All of these require UndecidableInstances because they do not satisfy the coverage condition
 
 instance ComonadTraced m w => ComonadTraced m (IdentityT w) where
   trace = lowerTrace
+  {-# inline trace #-}
 
 instance ComonadTraced m w => ComonadTraced m (EnvT e w) where
   trace = lowerTrace
+  {-# inline trace #-}
 
 instance ComonadTraced m w => ComonadTraced m (StoreT s w) where
   trace = lowerTrace
+  {-# inline trace #-}

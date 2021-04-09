@@ -57,23 +57,31 @@ newtype TracedT m w a = TracedT { runTracedT :: w (m -> a) }
 
 instance Functor w => Functor (TracedT m w) where
   fmap g = TracedT . fmap (g .) . runTracedT
+  {-# inline fmap #-}
 
 instance (ComonadApply w, Monoid m) => ComonadApply (TracedT m w) where
   TracedT wf <@> TracedT wa = TracedT (ap <$> wf <@> wa)
+  {-# inline (<@>) #-}
 
 instance Applicative w => Applicative (TracedT m w) where
   pure = TracedT . pure . const
+  {-# inline pure #-}
   TracedT wf <*> TracedT wa = TracedT (ap <$> wf <*> wa)
+  {-# inline (<*>) #-}
 
 instance (Comonad w, Monoid m) => Comonad (TracedT m w) where
   extend f = TracedT . extend (\wf m -> f (TracedT (fmap (. mappend m) wf))) . runTracedT
+  {-# inline extend #-}
   extract (TracedT wf) = extract wf mempty
+  {-# inline extract #-}
 
 instance Monoid m => ComonadTrans (TracedT m) where
   lower = fmap ($ mempty) . runTracedT
+  {-# inline lower #-}
 
 instance ComonadHoist (TracedT m) where
   cohoist l = TracedT . l . runTracedT
+  {-# inline cohoist #-}
 
 #ifdef MIN_VERSION_indexed_traversable
 instance FunctorWithIndex i w => FunctorWithIndex (s, i) (TracedT s w) where
@@ -83,12 +91,16 @@ instance FunctorWithIndex i w => FunctorWithIndex (s, i) (TracedT s w) where
 
 trace :: Comonad w => m -> TracedT m w a -> a
 trace m (TracedT wf) = extract wf m
+{-# inline trace #-}
 
 listen :: Functor w => TracedT m w a -> TracedT m w (a, m)
 listen = TracedT . fmap (\f m -> (f m, m)) . runTracedT
+{-# inline listen #-}
 
 listens :: Functor w => (m -> b) -> TracedT m w a -> TracedT m w (a, b)
 listens g = TracedT . fmap (\f m -> (f m, g m)) . runTracedT
+{-# inline listens #-}
 
 censor :: Functor w => (m -> m) -> TracedT m w a -> TracedT m w a
 censor g = TracedT . fmap (. g) . runTracedT
+{-# inline censor #-}

@@ -2,7 +2,7 @@
 {-# LANGUAGE Safe #-}
 
 -- |
--- Copyright   :  (C) 2008-2013 Edward Kmett
+-- Copyright   :  (C) 2008-2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
@@ -22,4 +22,4 @@ class ComonadHoist t where
 
 instance ComonadHoist IdentityT where
   cohoist l = IdentityT . l . runIdentityT
-  {-# INLINE cohoist #-}
+  {-# inline cohoist #-}
