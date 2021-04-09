@@ -1,8 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE Safe #-}
 
 -- |
--- Copyright   :  (C) 2008-2013 Edward Kmett
+-- Copyright   :  (C) 2008-2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
@@ -58,7 +59,7 @@
 module Control.Comonad.Trans.Store
 (
 -- * The Store comonad
-  Store, store, runStore
+  Store, pattern Store, runStore
 -- * The Store comonad transformer
 , StoreT(..), runStoreT
 -- * Operations
@@ -81,8 +82,8 @@ import GHC.Generics
 type Store s = StoreT s Identity
 
 -- | Create a Store using an accessor function and a stored value
-store :: (s -> a) -> s -> Store s a
-store f s = StoreT (Identity f) s
+pattern Store :: (s -> a) -> s -> Store s a
+pattern Store f s = StoreT (Identity f) s
 
 runStore :: Store s a -> (s -> a, s)
 runStore (StoreT (Identity f) s) = (f, s)

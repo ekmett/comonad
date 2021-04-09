@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE Safe #-}
 #ifdef MIN_VERSION_indexed_traversable
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -7,7 +8,7 @@
 #endif
 
 -- |
--- Copyright   :  (C) 2008-2014 Edward Kmett
+-- Copyright   :  (C) 2008-2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  provisional
@@ -23,7 +24,7 @@ module Control.Comonad.Trans.Traced
 (
 -- * Traced comonad
   Traced
-, traced
+, pattern Traced
 , runTraced
 -- * Traced comonad transformer
 , TracedT(..)
@@ -48,11 +49,8 @@ import GHC.Generics
 
 type Traced m = TracedT m Identity
 
-traced :: (m -> a) -> Traced m a
-traced f = TracedT (Identity f)
-
-runTraced :: Traced m a -> m -> a
-runTraced (TracedT (Identity f)) = f
+pattern Traced :: (m -> a) -> Traced m a
+pattern Traced { runTraced } = TracedT (Identity runTraced)
 
 newtype TracedT m w a = TracedT { runTracedT :: w (m -> a) }
   deriving (Generic, Generic1)

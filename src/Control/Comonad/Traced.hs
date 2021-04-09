@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE PatternSynonyms #-}
 
 -- |
 -- Copyright   :  (C) 2008-2014 Edward Kmett
@@ -14,11 +15,11 @@ module Control.Comonad.Traced
 , traces
 -- * The Traced comonad
 , Traced
-, traced
+, pattern Traced
 , runTraced
 -- * The TracedT comonad transformer
 , TracedT(..)
 ) where
 
 import Control.Comonad.Traced.Class (ComonadTraced(..), traces)
-import Control.Comonad.Trans.Traced (Traced, traced, runTraced, TracedT(..), runTracedT)
+import Control.Comonad.Trans.Traced (Traced, pattern Traced, runTraced, TracedT(..), runTracedT)

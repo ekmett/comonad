@@ -1,7 +1,8 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE PatternSynonyms #-}
 
 -- |
--- Copyright   :  (C) 2008-2014 Edward Kmett
+-- Copyright   :  (C) 2008-2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
 -- Stability   :  experimental
@@ -13,7 +14,7 @@ module Control.Comonad.Store
   ComonadStore(..)
 -- * The Store comonad
 , Store
-, store
+, pattern Store
 , runStore
 -- * The StoreT comonad transformer
 , StoreT(..)
@@ -21,4 +22,4 @@ module Control.Comonad.Store
 ) where
 
 import Control.Comonad.Store.Class (ComonadStore(..))
-import Control.Comonad.Trans.Store (Store, store, runStore, StoreT(..), runStoreT)
+import Control.Comonad.Trans.Store (Store, pattern Store, runStore, StoreT(..), runStoreT)

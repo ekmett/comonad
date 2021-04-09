@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE PatternSynonyms #-}
+
 
 -- |
 -- Copyright   :  (C) 2008-2021 Edward Kmett
@@ -24,7 +26,7 @@ module Control.Comonad.Env
 , local
 -- * The Env comonad
 , Env
-, env
+, pattern Env
 , runEnv
 -- * The EnvT comonad transformer
 , EnvT(..)
@@ -32,4 +34,4 @@ module Control.Comonad.Env
 ) where
 
 import Control.Comonad.Env.Class (ComonadEnv(..), asks)
-import Control.Comonad.Trans.Env (Env, env, runEnv, EnvT(..), runEnvT, local)
+import Control.Comonad.Trans.Env (Env, pattern Env, runEnv, EnvT(..), runEnvT, local)

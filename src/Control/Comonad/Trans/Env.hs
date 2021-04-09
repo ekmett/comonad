@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE Safe #-}
 
 -- |
@@ -42,7 +43,7 @@ module Control.Comonad.Trans.Env
 (
 -- * The strict environment comonad
   Env
-, env
+, pattern Env
 , runEnv
 -- * The strict environment comonad transformer
 , EnvT(..)
@@ -69,8 +70,8 @@ data EnvT e w a = EnvT e (w a)
   deriving (Generic, Generic1, Data)
 
 -- | Create an Env using an environment and a value
-env :: e -> a -> Env e a
-env e a = EnvT e (Identity a)
+pattern Env :: e -> a -> Env e a
+pattern Env e a = EnvT e (Identity a)
 
 runEnv :: Env e a -> (e, a)
 runEnv (EnvT e (Identity a)) = (e, a)
