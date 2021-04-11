@@ -20,7 +20,7 @@
 -- >>> :{
 --  let
 --    storeTuple :: Store (Int, Int) Int
---    storeTuple = store fst (1, 5)
+--    storeTuple = Store fst (1, 5)
 -- :}
 --
 -- Add something to the focus:
@@ -128,7 +128,7 @@ instance ComonadHoist (StoreT s) where
 
 -- | Read the stored value
 --
--- >>> pos $ store fst (1,5)
+-- >>> pos $ Store fst (1,5)
 -- (1,5)
 --
 pos :: StoreT s w a -> s
@@ -137,7 +137,7 @@ pos = \(StoreT _ s) -> s
 
 -- | Set the stored value
 --
--- >>> pos . seek (3,7) $ store fst (1,5)
+-- >>> pos . seek (3,7) $ Store fst (1,5)
 -- (3,7)
 --
 -- Seek satisfies the law
@@ -149,7 +149,7 @@ seek = \s ~(StoreT f _) -> StoreT f s
 
 -- | Modify the stored value
 --
--- >>> pos . seeks swap $ store fst (1,5)
+-- >>> pos . seeks swap $ Store fst (1,5)
 -- (5,1)
 --
 -- Seeks satisfies the law
@@ -179,9 +179,9 @@ peeks = \f ~(StoreT g s) -> extract g (f s)
 --   new accessor to read the resulting focus.
 --
 --   >>> let f x = if x > 0 then Just (x^2) else Nothing
---   >>> experiment f $ store (+1) 2
+--   >>> experiment f $ Store (+1) 2
 --   Just 5
---   >>> experiment f $ store (+1) (-2)
+--   >>> experiment f $ Store (+1) (-2)
 --   Nothing
 experiment :: (Comonad w, Functor f) => (s -> f s) -> StoreT s w a -> f a
 experiment = \f (StoreT wf s) -> extract wf <$> f s

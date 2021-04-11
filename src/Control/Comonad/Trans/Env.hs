@@ -19,7 +19,7 @@
 -- The following sets up an experiment that retains its initial value in the
 -- background:
 --
--- >>> let initial = env 0 0
+-- >>> let initial = Env 0 0
 --
 -- Extract simply retrieves the value:
 --
