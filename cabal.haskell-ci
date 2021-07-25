@@ -2,7 +2,7 @@ distribution:           bionic
 no-tests-no-benchmarks: False
 unconstrained:          False
 allow-failures:         <7.3
-irc-channels:           irc.freenode.org#haskell-lens
+-- irc-channels:           irc.freenode.org#haskell-lens
 irc-if-in-origin-repo:  True
 -- Work around https://github.com/haskell/haddock/issues/242
 haddock:                <7.6 || >=7.8
