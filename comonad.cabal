@@ -58,7 +58,7 @@ library
   build-depends:
     , base                >= 4.12 && < 5
     , tagged              >= 0.8.6.1 && < 1
-    , transformers        >= 0.5 && < 0.6
+    , transformers        >= 0.5 && < 0.7
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
