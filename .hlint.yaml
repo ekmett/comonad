@@ -2,3 +2,8 @@
 
 - ignore: {name: Eta reduce}
 - ignore: {name: Use import/export shortcut}
+- ignore: {name: Redundant lambda}
+- ignore: {name: Avoid lambda}
+- ignore: {name: Use first}
+- ignore: {name: Use second}
+- ignore: {name: Avoid lambda using `infix`}
