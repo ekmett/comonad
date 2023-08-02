@@ -59,18 +59,19 @@ import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
 import Data.Data
-#if MIN_VERSION_base(4,9,0)
 import Data.Functor.Classes
-#endif
 import Data.Functor.Identity
 import GHC.Generics
+import GHC.Read (expectP)
+import Text.Read (Read (..), parens)
+import Text.Read.Lex (Lexeme(..))
 
 -- $setup
 -- >>> import Control.Comonad
 
 type Env e = EnvT e Identity
 data EnvT e w a = EnvT e (w a)
-  deriving (Eq, Ord, Show, Generic, Generic1, Data)
+  deriving (Eq, Ord, Read, Show, Generic, Generic1, Data)
 
 -- | Create an Env using an environment and a value
 pattern Env :: e -> a -> Env e a
@@ -84,21 +85,23 @@ runEnvT :: EnvT e w a -> (e, w a)
 runEnvT = \(EnvT e wa) -> (e, wa)
 {-# inline runEnvT #-}
 
-#if MIN_VERSION_base(4,9,0)
 instance (Eq e, Eq1 w) => Eq1 (EnvT e w) where
   liftEq eq (EnvT e1 wa1) (EnvT e2 wa2) = e1 == e2 && liftEq eq wa1 wa2
 
 instance (Ord e, Ord1 w) => Ord1 (EnvT e w) where
-  liftCompare comp (EnvT e1 wa1) (EnvT e2 wa2) = case compare e1 e2 of
-    EQ -> liftCompare comp wa1 wa2
-    r -> r
+  liftCompare comp (EnvT e1 wa1) (EnvT e2 wa2) =
+    compare e1 e2 <> liftCompare comp wa1 wa2
+
+instance (Read e, Read1 w) => Read1 (EnvT e w) where
+  liftReadPrec rp rl =
+    parens $
+      expectP (Ident "EnvT") *> (EnvT <$> readPrec <*> liftReadPrec rp rl)
 
 instance (Show e, Show1 w) => Show1 (EnvT e w) where
   liftShowsPrec sp sl p (EnvT e wa) =
     showParen (p > 10)
     $ showString "EnvT"
     . foldMap (showString " " .) [showsPrec 11 e, liftShowsPrec sp sl 11 wa]
-#endif
 
 instance Functor w => Functor (EnvT e w) where
   fmap = \g (EnvT e wa) -> EnvT e (fmap g wa)
