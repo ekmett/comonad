@@ -5,6 +5,7 @@
 * Add `Generic`, `Generic1` instances where possible
 * Stop exporting `Control.Comonad` from all the `Control.Comonad.Foo` modules
   to match style with the upcoming `mtl` release.
+* Add `Eq(1)`, `Ord(1)`, `Read(1)`, and `Show(1)` instances for `EnvT`.
 
 5.0.8 [2020.12.30]
 -----------------
