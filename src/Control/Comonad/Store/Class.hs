@@ -25,7 +25,9 @@ import Control.Comonad.Trans.Identity
 
 class Comonad w => ComonadStore s w | w -> s where
   pos :: w a -> s
+
   peek :: s -> w a -> a
+  peek = peeks . const
 
   peeks :: (s -> s) -> w a -> a
   peeks f w = peek (f (pos w)) w
@@ -42,6 +44,10 @@ class Comonad w => ComonadStore s w | w -> s where
   experiment :: Functor f => (s -> f s) -> w a -> f a
   experiment f w = fmap (`peek` w) (f (pos w))
   {-# inline experiment #-}
+
+#if __GLASGOW_HASKELL__ >= 708
+  {-# MINIMAL pos, (peek | peeks) #-}
+#endif
 
 instance Comonad w => ComonadStore s (Store.StoreT s w) where
   pos = Store.pos
