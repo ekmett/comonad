@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Drop support for pre-8.0 versions of GHC.
+
 5.0.8 [202y.mm.dd]
 -----------------
 * Explicitly mark modules as Safe or Trustworthy

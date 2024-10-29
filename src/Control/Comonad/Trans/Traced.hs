@@ -1,9 +1,6 @@
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE StandaloneDeriving, DeriveDataTypeable, Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE StandaloneDeriving #-}
 #ifdef MIN_VERSION_indexed_traversable
 {-# LANGUAGE MultiParamTypeClasses, UndecidableInstances #-}
 #endif
@@ -39,14 +36,6 @@ module Control.Comonad.Trans.Traced
   , censor
   ) where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative
-#endif
-
-#if __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
-
 import Control.Monad (ap)
 import Control.Comonad
 import Control.Comonad.Hoist.Class
@@ -61,12 +50,6 @@ import Data.Functor.WithIndex
 #endif
 
 import Data.Functor.Identity
-
-#if __GLASGOW_HASKELL__ < 710
-import Data.Semigroup
-#endif
-
-import Data.Typeable
 
 
 type Traced m = TracedT m Identity
@@ -121,28 +104,3 @@ listens g = TracedT . fmap (\f m -> (f m, g m)) . runTracedT
 
 censor :: Functor w => (m -> m) -> TracedT m w a -> TracedT m w a
 censor g = TracedT . fmap (. g) . runTracedT
-
-#ifdef __GLASGOW_HASKELL__
-
-#if __GLASGOW_HASKELL__ >= 707
-deriving instance Typeable TracedT
-#else
-instance (Typeable s, Typeable1 w) => Typeable1 (TracedT s w) where
-  typeOf1 dswa = mkTyConApp tracedTTyCon [typeOf (s dswa), typeOf1 (w dswa)]
-    where
-      s :: TracedT s w a -> s
-      s = undefined
-      w :: TracedT s w a -> w a
-      w = undefined
-
-tracedTTyCon :: TyCon
-#if __GLASGOW_HASKELL__ < 704
-tracedTTyCon = mkTyCon "Control.Comonad.Trans.Traced.TracedT"
-#else
-tracedTTyCon = mkTyCon3 "comonad-transformers" "Control.Comonad.Trans.Traced" "TracedT"
-#endif
-{-# NOINLINE tracedTTyCon #-}
-
-#endif
-
-#endif

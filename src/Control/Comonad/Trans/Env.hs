@@ -1,13 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-#if __GLASGOW_HASKELL__ >= 707
-{-# LANGUAGE StandaloneDeriving, DeriveDataTypeable, Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
-#ifndef MIN_VERSION_base
-#define MIN_VERSION_base(x,y,z) 1
-#endif
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE StandaloneDeriving #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Trans.Env
@@ -62,59 +56,21 @@ module Control.Comonad.Trans.Env
   , local
   ) where
 
-#if !(MIN_VERSION_base(4,8,0))
-import Control.Applicative
-#endif
 import Control.Comonad
 import Control.Comonad.Hoist.Class
 import Control.Comonad.Trans.Class
-#if __GLASGOW_HASKELL__ < 710
-import Data.Foldable
-import Data.Traversable
-#endif
+import Data.Data
 import Data.Functor.Identity
 #if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
 #endif
 
-#ifdef __GLASGOW_HASKELL__
-#if __GLASGOW_HASKELL__ >= 707
-#define Typeable1 Typeable
-#endif
-import Data.Data
-
 -- $setup
 -- >>> import Control.Comonad
 
-#if __GLASGOW_HASKELL__ >= 707
-deriving instance Typeable EnvT
-#else
-instance (Typeable s, Typeable1 w) => Typeable1 (EnvT s w) where
-  typeOf1 dswa = mkTyConApp envTTyCon [typeOf (s dswa), typeOf1 (w dswa)]
-    where
-      s :: EnvT s w a -> s
-      s = undefined
-      w :: EnvT s w a -> w a
-      w = undefined
-
-envTTyCon :: TyCon
-#if __GLASGOW_HASKELL__ < 704
-envTTyCon = mkTyCon "Control.Comonad.Trans.Env.EnvT"
-#else
-envTTyCon = mkTyCon3 "comonad-transformers" "Control.Comonad.Trans.Env" "EnvT"
-#endif
-{-# NOINLINE envTTyCon #-}
-
-#endif
-
-#if __GLASGOW_HASKELL__ < 707
-instance (Typeable s, Typeable1 w, Typeable a) => Typeable (EnvT s w a) where
-  typeOf = typeOfDefault
-#endif
-
 instance
   ( Data e
-  , Typeable1 w, Data (w a)
+  , Typeable w, Data (w a)
   , Data a
   ) => Data (EnvT e w a) where
     gfoldl f z (EnvT e wa) = z EnvT `f` e `f` wa
@@ -132,8 +88,6 @@ envTConstr = mkConstr envTDataType "EnvT" [] Prefix
 envTDataType :: DataType
 envTDataType = mkDataType "Control.Comonad.Trans.Env.EnvT" [envTConstr]
 {-# NOINLINE envTDataType #-}
-
-#endif
 
 type Env e = EnvT e Identity
 data EnvT e w a = EnvT e (w a)

@@ -14,13 +14,7 @@ copyright:     Copyright (C) 2008-2014 Edward A. Kmett,
 synopsis:      Comonads
 description:   Comonads.
 build-type:    Simple
-tested-with:   GHC == 7.0.4
-             , GHC == 7.2.2
-             , GHC == 7.4.2
-             , GHC == 7.6.3
-             , GHC == 7.8.4
-             , GHC == 7.10.3
-             , GHC == 8.0.2
+tested-with:   GHC == 8.0.2
              , GHC == 8.2.2
              , GHC == 8.4.4
              , GHC == 8.6.5
@@ -28,8 +22,10 @@ tested-with:   GHC == 7.0.4
              , GHC == 8.10.7
              , GHC == 9.0.2
              , GHC == 9.2.8
-             , GHC == 9.4.5
-             , GHC == 9.6.2
+             , GHC == 9.4.8
+             , GHC == 9.6.6
+             , GHC == 9.8.2
+             , GHC == 9.10.1
 extra-source-files:
   .gitignore
   .hlint.yaml
@@ -80,13 +76,10 @@ library
   ghc-options: -Wall
 
   build-depends:
-    base                >= 4   && < 5,
+    base                >= 4.9 && < 5,
     tagged              >= 0.8.6.1 && < 1,
     transformers        >= 0.3 && < 0.7,
     transformers-compat >= 0.5 && < 1
-
-  if !impl(ghc >= 8.0)
-    build-depends: semigroups >= 0.18.5 && < 1
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.8
