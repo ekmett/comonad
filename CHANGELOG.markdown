@@ -2,7 +2,7 @@ next [????.??.??]
 -----------------
 * Drop support for pre-8.0 versions of GHC.
 
-5.0.8 [202y.mm.dd]
+5.0.8 [2023.09.30]
 -----------------
 * Explicitly mark modules as Safe or Trustworthy
 * The build-type has been changed from `Custom` to `Simple`.
