@@ -83,7 +83,7 @@ library
     transformers-compat >= 0.5 && < 1
 
   if flag(containers)
-    build-depends: containers >= 0.3 && < 0.8
+    build-depends: containers >= 0.3 && < 0.9
 
   if flag(distributive)
     build-depends: distributive >= 0.5.2 && < 1
