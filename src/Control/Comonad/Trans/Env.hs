@@ -65,6 +65,11 @@ import Data.Functor.Identity
 import Data.Semigroup
 #endif
 
+#ifdef __MHS__
+import Data.Foldable
+import Data.Traversable
+#endif
+
 -- $setup
 -- >>> import Control.Comonad
 
