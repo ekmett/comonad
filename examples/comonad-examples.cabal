@@ -30,7 +30,7 @@ tested-with:   GHC == 8.0.2
 
 source-repository head
   type: git
-  location: git://github.com/ekmett/comonad.git
+  location: https://github.com/ekmett/comonad.git
 
 library
   hs-source-dirs: .

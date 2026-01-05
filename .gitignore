@@ -1,5 +1,5 @@
 dist
-dist-newstyle
+dist-*
 docs
 wiki
 TAGS

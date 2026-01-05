@@ -69,7 +69,7 @@ flag indexed-traversable
 
 source-repository head
   type: git
-  location: git://github.com/ekmett/comonad.git
+  location: https://github.com/ekmett/comonad.git
 
 library
   hs-source-dirs: src
