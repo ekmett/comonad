@@ -1,6 +1,7 @@
 next [????.??.??]
 -----------------
 * Support building with MicroHs.
+* Remove unused `transformers-compat` dependency.
 
 5.0.9 [2024.12.04]
 ------------------
