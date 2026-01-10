@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Support building with MicroHs.
+
 5.0.9 [2024.12.04]
 ------------------
 * Drop support for pre-8.0 versions of GHC.
