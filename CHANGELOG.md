@@ -7,6 +7,11 @@
   to match style with the upcoming `mtl` release.
 * Add `Eq(1)`, `Ord(1)`, `Read(1)`, and `Show(1)` instances for `EnvT`.
 
+5.0.10 [2026.01.10]
+-------------------
+* Support building with MicroHs.
+* Remove unused `transformers-compat` dependency.
+
 5.0.9 [2024.12.04]
 ------------------
 * Drop support for pre-8.0 versions of GHC.

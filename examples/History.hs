@@ -52,7 +52,7 @@ ini :: History a -> a
 ini dx = extract dx `fby` extend ini dx
 
 fibo :: Num b => History a -> b
-fibo d = wfix $ d $> fby 0 . extend (\dfibo -> extract dfibo + fby 1 dfibo) 
+fibo d = wfix $ d $> fby 0 . extend (\dfibo -> extract dfibo + fby 1 dfibo)
 
 fibo' :: Num b => History a -> b
 fibo' d = fst $ wfix $ d $> fby (0, 1) . fmap (\(x, x') -> (x',x+x'))

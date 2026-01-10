@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -65,6 +66,11 @@ import GHC.Generics
 import GHC.Read (expectP)
 import Text.Read (Read (..), parens)
 import Text.Read.Lex (Lexeme(..))
+
+#ifdef __MHS__
+import Data.Foldable
+import Data.Traversable
+#endif
 
 -- $setup
 -- >>> import Control.Comonad
