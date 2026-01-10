@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.0.10 [2026.01.10]
+-------------------
 * Support building with MicroHs.
 * Remove unused `transformers-compat` dependency.
 
